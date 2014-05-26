@@ -5,6 +5,28 @@
     },
     "config_munge": {
         "files": {
+            "framework": {
+                "parents": {
+                    "CoreBluetooth.framework": [
+                        {
+                            "xml": "false",
+                            "count": 1
+                        }
+                    ],
+                    "CoreLocation.framework": [
+                        {
+                            "xml": "false",
+                            "count": 1
+                        }
+                    ],
+                    "SystemConfiguration.framework": [
+                        {
+                            "xml": "false",
+                            "count": 1
+                        }
+                    ]
+                }
+            },
             "config.xml": {
                 "parents": {
                     "/*": [
@@ -18,6 +40,10 @@
                         },
                         {
                             "xml": "<feature name=\"Device\"><param name=\"ios-package\" value=\"CDVDevice\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"EstimoteBeacons\"><param name=\"ios-package\" value=\"EstimoteBeacons\" /></feature>",
                             "count": 1
                         }
                     ]
@@ -33,6 +59,9 @@
             "PACKAGE_NAME": "at.ac.tuwien.igw.key-hunter-mobile"
         },
         "org.apache.cordova.device": {
+            "PACKAGE_NAME": "at.ac.tuwien.igw.key-hunter-mobile"
+        },
+        "pl.makingwaves.estimotebeacons": {
             "PACKAGE_NAME": "at.ac.tuwien.igw.key-hunter-mobile"
         }
     },

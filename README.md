@@ -1,8 +1,10 @@
-Ionic App Base
-=====================
+Key Hunter
+==========
 
-A starting project for Ionic that optionally supports
-using custom SCSS.
+## Setup
+
+- [http://docs.phonegap.com/en/edge/guide_platforms_ios_index.md.html#iOS%20Platform%20Guide](iOS Platform Guide)
+- [http://docs.phonegap.com/en/edge/guide_platforms_android_index.md.html#Android%20Platform%20Guide](Android Platform Guide)
 
 ## Using this project
 
