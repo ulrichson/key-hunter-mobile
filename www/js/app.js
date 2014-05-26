@@ -1,9 +1,4 @@
-// Ionic Starter App
-
-// angular.module is a global place for creating, registering and retrieving Angular modules
-// 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
-// the 2nd parameter is an array of 'requires'
-angular.module('starter', ['ionic'])
+angular.module('app', ['ionic'])
 
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
@@ -16,4 +11,47 @@ angular.module('starter', ['ionic'])
       StatusBar.styleDefault();
     }
   });
+})
+
+.controller('AppController', function($scope) {
+
+  // function formatDistance(meters) {
+  //     if(meters > 1) {
+  //         return meters.toFixed(3) + ' m';
+  //     } else {
+  //         return (meters * 100).toFixed(3) + ' cm';
+  //     }
+  // }
+
+  $scope.beacons = [];
+
+  document.addEventListener('deviceready', function() {
+    // start looking for beacons
+    window.EstimoteBeacons.startRangingBeaconsInRegion(function () {
+        //every now and then get the list of beacons in range
+        setInterval(function () {
+            window.EstimoteBeacons.getBeacons(function (data) {
+                $scope.beacons = data;
+                $scope.$apply();
+            });
+        }, 200);
+    });
+  }, false);
+
+  // var beaconManager = new BeaconManager();
+  // beaconManager.startPulling(1000);
+
+  // beaconManager.on('updated', function(beacon) {
+      
+  // });
+
+  // beaconManager.on('added', function(beacon) {
+  //   alert("added");
+  //   $scope.push(beacon);
+  // });
+
+  // beaconManager.on('removed', function(beacon) {
+
+  // });
+
 })
