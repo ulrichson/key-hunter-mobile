@@ -3,14 +3,14 @@ Key Hunter
 
 ## Setup
 
-This app is based on the [http://ionicframework.com](Ionic Framework).
+This app is based on the [Ionic Framework](http://ionicframework.com).
 
 ```bash
 $ npm install -g cordova ionic gulp
 ```
 
-- [http://docs.phonegap.com/en/edge/guide_platforms_ios_index.md.html#iOS%20Platform%20Guide](iOS Platform Guide)
-- [http://docs.phonegap.com/en/edge/guide_platforms_android_index.md.html#Android%20Platform%20Guide](Android Platform Guide)
+- [iOS Platform Guide](http://docs.phonegap.com/en/edge/guide_platforms_ios_index.md.html#iOS%20Platform%20Guide)
+- [Android Platform Guide](http://docs.phonegap.com/en/edge/guide_platforms_android_index.md.html#Android%20Platform%20Guide)
 
 
 ## Using Sass (optional)
