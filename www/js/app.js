@@ -1,5 +1,21 @@
 angular.module('app', ['ionic'])
 
+
+.config(function($stateProvider, $urlRouterProvider) {
+    $stateProvider
+        .state('index', {
+            url: "/",
+            templateUrl: "home.html"
+        })
+        .state('play', {
+            url: "/play",
+            templateUrl: "play.html"
+        });
+
+    $urlRouterProvider.otherwise("/");
+
+})
+
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
@@ -13,7 +29,53 @@ angular.module('app', ['ionic'])
   });
 })
 
-.controller('AppController', function($scope) {
+.controller('AppController', function($scope,$interval) {
+    var KeystateEnum = {
+        OUTOFRANGE : "button-light",
+        INRANGE : "button-stable",
+        WON : "button-positive"
+    };
+
+
+    function Key() {
+        this.state = KeystateEnum.OUTOFRANGE
+    }
+    $scope.keys = [new Key(), new Key(), new Key(), new Key()];
+    $scope.download = {
+        state : false,
+        index : false,
+        value : 0,
+        start : function(index) {
+            $scope.download.index = index;
+            $scope.download.state = true;
+            $scope.download._interval = $interval(function() {
+                $scope.download.value >= 100 ? $scope.download.won() : $scope.download.value++;
+            }, 50)
+        },
+        stop : function () {
+            $scope.download.value = 0;
+            $scope.download.state = false;
+            $interval.cancel($scope.download._interval);
+        },
+        won : function () {
+            $scope.keys[$scope.download.index].state = KeystateEnum.WON;
+            $scope.download.stop();
+        },
+        _interval : 0
+    }
+
+
+
+
+    // set some presets
+    $scope.keys[1].state = KeystateEnum.INRANGE;
+    $scope.keys[2].state = KeystateEnum.WON;
+
+
+
+
+
+
 
   // function formatDistance(meters) {
   //     if(meters > 1) {
