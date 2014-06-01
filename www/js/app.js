@@ -72,7 +72,8 @@ angular.module('app', ['ionic'])
             	
             }
             if(downloaded == $scope.keys.length){
-            	return true;
+           		redirectTo: '/win';
+           		alert($location);
             }
         },
         won : function () {
