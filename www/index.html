@@ -73,12 +73,20 @@
           </ion-view>
       </script>
 
+
+      <script id="win.html" type="text/ng-template">
+      <ion-view title="Key Hunter - Playing" class="padding">
+      
+      </ion-view>
+      
+	  </script>
+	  
       <script id="play.html" type="text/ng-template">
           <ion-view title="Key Hunter - Playing" class="padding">
               <ion-content>
                   <div class="row">
                       <div class="col" ng-repeat="key in keys">
-                          <button class="button icon ion-key" ng-class="key.state" ng-click="download.start($index)"></button>
+                          <button class="button icon ion-key" ng-class="key.state" ng-click="download.start($index)" href="#/won"></button>
                       </div>
                   </div>
 

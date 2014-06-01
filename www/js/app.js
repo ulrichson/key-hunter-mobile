@@ -10,6 +10,10 @@ angular.module('app', ['ionic'])
         .state('play', {
             url: "/play",
             templateUrl: "play.html"
+        })
+        .state('won', {
+            url: "/win",
+            templateUrl: "win.html"
         });
 
     $urlRouterProvider.otherwise("/");
@@ -41,6 +45,7 @@ angular.module('app', ['ionic'])
         this.state = KeystateEnum.OUTOFRANGE
     }
     $scope.keys = [new Key(), new Key(), new Key(), new Key()];
+    $scope.finalWin = false;
     $scope.download = {
         state : false,
         index : false,
@@ -56,6 +61,19 @@ angular.module('app', ['ionic'])
             $scope.download.value = 0;
             $scope.download.state = false;
             $interval.cancel($scope.download._interval);
+            
+           downloaded = 0;
+            for(var i = 0 ; i < $scope.keys.length; i++){
+            	if($scope.keys[i].state == KeystateEnum.WON){
+            		downloaded++;
+            	}else{
+            		break;
+            	}
+            	
+            }
+            if(downloaded == $scope.keys.length){
+            	return true;
+            }
         },
         won : function () {
             $scope.keys[$scope.download.index].state = KeystateEnum.WON;
