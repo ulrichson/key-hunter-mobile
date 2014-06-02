@@ -5,7 +5,7 @@ angular.module('app', ['ionic'])
     $stateProvider
         .state('index', {
             url: "/",
-            templateUrl: "home.html"
+            templateUrl: "play.html"
         })
         .state('play', {
             url: "/play",
@@ -14,6 +14,10 @@ angular.module('app', ['ionic'])
         .state('won', {
             url: "/win",
             templateUrl: "win.html"
+        })
+		.state('attcked', {
+            url: "/attacked",
+            templateUrl: "attacked.html"
         });
 
     $urlRouterProvider.otherwise("/");

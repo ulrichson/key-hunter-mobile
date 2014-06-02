@@ -101,7 +101,7 @@
               <ion-content>
                   <div class="row">
                       <div class="col" ng-repeat="key in keys">
-                          <button class="button icon ion-key" ng-class="key.state" ng-click="download.start($index)" href="#/won"></button>
+                          <button class="button icon ion-key" ng-class="key.state" ng-click="download.start($index)" ></button>
                       </div>
                   </div>
 
@@ -123,9 +123,34 @@
                       </a>
 
                   </div>
+                  
+                   <div class="item item-image hide">
+                          <img src="assets/hourglass.png" style="width:50%;height:50%">
+                          <h2>Attack failed!</h2>
+                          <p>{{attack.value}} sec</p>
+                  </div>
+                  
                   <p>
                       <a class="button icon ion-home" href="#/"> Home</a>
                   </p>
+              </ion-content>
+          </ion-view>
+      </script>
+
+	  <script id="attacked.html" type="text/ng-template">
+          <ion-view title="Key Hunter - Playing" class="padding">
+              <ion-content>
+                  <div class="row">
+                      <div class="col" ng-repeat="key in keys">
+                          <button class="button icon ion-key" ng-class="key.state" ></button>
+                      </div>
+                  </div>
+
+                  <div class="item item-image">
+                          <img src="assets/warning.png">
+                          <h2>You are under attack!</h2>
+                          <p>Run if you don't want to lose the key.</p>
+                  </div>
               </ion-content>
           </ion-view>
       </script>
