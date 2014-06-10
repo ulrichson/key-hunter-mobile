@@ -76,8 +76,9 @@ angular.module('app', ['ionic'])
             	
             }
             if(downloaded == $scope.keys.length){
-           		redirectTo: '/win';
-           		alert($location);
+           		// redirectTo: '/win';
+           		// alert($location);
+              window.location.href = '#/win'
             }
         },
         won : function () {
@@ -120,6 +121,10 @@ angular.module('app', ['ionic'])
                 $scope.$apply();
             });
         }, 200);
+    });
+
+    window.EstimoteBeacons.startVirtualBeacon(major, minor, id, function() {
+      alert("beacon started");
     });
   }, false);
 

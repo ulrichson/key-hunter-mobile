@@ -123,6 +123,13 @@
                       </a>
 
                   </div>
+
+                  <ul class="list">
+                      <li class="item" ng-repeat="beacon in beacons">
+                        <h2>{{ beacon.major }} / {{ beacon.minor }}</h2>
+                        <p>{{ beacon.distance }}</p>
+                      </li>
+                  </ul>
                   
                    <div class="item item-image hide">
                           <img src="assets/hourglass.png" style="width:50%;height:50%">
