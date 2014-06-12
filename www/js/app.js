@@ -1,27 +1,20 @@
 angular.module('app', ['ionic'])
 
-
 .config(function($stateProvider, $urlRouterProvider) {
-    $stateProvider
-        .state('index', {
-            url: "/",
-            templateUrl: "play.html"
-        })
-        .state('play', {
-            url: "/play",
-            templateUrl: "play.html"
-        })
-        .state('won', {
-            url: "/win",
-            templateUrl: "win.html"
-        })
-		.state('attcked', {
-            url: "/attacked",
-            templateUrl: "attacked.html"
-        });
-
-    $urlRouterProvider.otherwise("/");
-
+  $stateProvider
+    .state("home", {
+      url: "/",
+      templateUrl: "home.html"
+    })
+    .state("play", {
+      url: "/play",
+      templateUrl: "play.html"
+    })
+    .state("end", {
+      url: "/end",
+      templateUrl: "end.html"
+    });
+  $urlRouterProvider.otherwise("/");
 })
 
 .run(function($ionicPlatform) {
@@ -37,18 +30,51 @@ angular.module('app', ['ionic'])
   });
 })
 
-.controller('AppController', function($scope,$interval) {
+.controller('AppController', function($scope, $state, $interval) {
+    var gameLoop;
+    var gameIntervalTime = 500;
+
+    $scope.beaconsInRange = [];
+    $scope.isBeacon = false;
+
+    $scope.showBeaconWithin = 20;
+
+    $scope.player = {};
+    $scope.players = [{
+      name: "Player 1",
+      id: "9728D74C-CD81-4215-B454-FC9E66F38CEA",
+      major: 11111,
+      minor: 11111
+    }, {
+      name: "Player 2",
+      id: "A4B015E9-544D-431A-B4AA-3ABE0FFFD804",
+      major: 11111,
+      minor: 22222
+    }, {
+      name: "Player 3",
+      id: "AF31C6CA-9A06-477B-9AAA-52C0888697E5",
+      major: 11111,
+      minor: 22222
+    }];
+
     var KeystateEnum = {
-        OUTOFRANGE : "button-light",
-        INRANGE : "button-stable",
-        WON : "button-positive"
+      OUTOFRANGE : "button-light",
+      INRANGE : "button-stable",
+      WON : "button-positive"
     };
 
+    $scope.beaconIdToPlayerName = {
+      "11111": "Player1",
+      "22222": "Player2",
+      "33333": "Player3",
+      "52642": "Master"
+    }
 
     function Key() {
-        this.state = KeystateEnum.OUTOFRANGE
+      this.state = KeystateEnum.OUTOFRANGE
     }
-    $scope.keys = [new Key(), new Key(), new Key(), new Key()];
+
+    $scope.keys = [new Key(), new Key(), new Key()];
     $scope.finalWin = false;
     $scope.download = {
         state : false,
@@ -68,17 +94,18 @@ angular.module('app', ['ionic'])
             
            downloaded = 0;
             for(var i = 0 ; i < $scope.keys.length; i++){
-            	if($scope.keys[i].state == KeystateEnum.WON){
-            		downloaded++;
-            	}else{
-            		break;
-            	}
-            	
+              if($scope.keys[i].state == KeystateEnum.WON){
+                downloaded++;
+              }else{
+                break;
+              }
+              
             }
             if(downloaded == $scope.keys.length){
-           		// redirectTo: '/win';
-           		// alert($location);
-              window.location.href = '#/win'
+              // redirectTo: '/win';
+              // alert($location);
+              // window.location.href = '#/win'
+              $state.go("end");
             }
         },
         won : function () {
@@ -92,13 +119,8 @@ angular.module('app', ['ionic'])
 
 
     // set some presets
-    $scope.keys[1].state = KeystateEnum.INRANGE;
-    $scope.keys[2].state = KeystateEnum.WON;
-
-
-
-
-
+    // $scope.keys[1].state = KeystateEnum.INRANGE;
+    // $scope.keys[2].state = KeystateEnum.WON;
 
 
   // function formatDistance(meters) {
@@ -109,39 +131,36 @@ angular.module('app', ['ionic'])
   //     }
   // }
 
-  $scope.beacons = [];
+  // UI callbacks
+  $scope.choosePlayer = function(player) {
+    $scope.player = player;
+    // $state.go("play");
 
+    window.EstimoteBeacons.startVirtualBeacon(player.major, player.minor, player.id, function() {
+      console.log("Phone is now a beacon");
+      $scope.isBeacon = true;
+
+      // Game loop
+      gameLoop = setInterval(function () {
+        // fetch gamestatus from REST service
+
+      }, gameIntervalTime);
+
+    });
+  };
+
+  // Init
   document.addEventListener('deviceready', function() {
     // start looking for beacons
     window.EstimoteBeacons.startRangingBeaconsInRegion(function () {
         //every now and then get the list of beacons in range
         setInterval(function () {
             window.EstimoteBeacons.getBeacons(function (data) {
-                $scope.beacons = data;
+                $scope.beaconsInRange = data;
                 $scope.$apply();
             });
-        }, 200);
-    });
-
-    window.EstimoteBeacons.startVirtualBeacon(major, minor, id, function() {
-      alert("beacon started");
+        }, gameIntervalTime);
     });
   }, false);
-
-  // var beaconManager = new BeaconManager();
-  // beaconManager.startPulling(1000);
-
-  // beaconManager.on('updated', function(beacon) {
-      
-  // });
-
-  // beaconManager.on('added', function(beacon) {
-  //   alert("added");
-  //   $scope.push(beacon);
-  // });
-
-  // beaconManager.on('removed', function(beacon) {
-
-  // });
 
 })

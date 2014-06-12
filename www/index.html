@@ -22,69 +22,99 @@
     <script src="js/app.js"></script>
   </head>
   <body ng-app="app" ng-controller="AppController">
+    <ion-nav-bar class="nav-title-slide-ios7">
+      <ion-nav-back-button class="button-icon ion-arrow-left-c">
+      </ion-nav-back-button>
+    </ion-nav-bar>
+    <ion-nav-view animation="slide-right-left"></ion-nav-view>
+    
+    <!-- Home View -->
+    <script id="home.html" type="text/ng-template">
+      <ion-view title="Choose player">
+        <ion-content>
+          <div class="list">
+            <a class="item item-avatar" ng-repeat="player in players" ng-click="choosePlayer(player)">
+              <h2>{{ player.name }}</h2>
+              <p>{{ player.major }} / {{ player.minor }}<br><small>{{ player.id }}</small></p>
+            </a>
+          </div>
+          <a class="button button-block button-positive" href="#/play" ng-disabled="!isBeacon">Join Game</a>
+        </ion-content>
+      </ion-view>
+    </script>
 
-      <ion-nav-bar class="nav-title-slide-ios7 bar-positive">
-          <ion-nav-back-button class="button-icon ion-arrow-left-c">
-          </ion-nav-back-button>
-      </ion-nav-bar>
+    <!-- Play View -->
+    <script id="play.html" type="text/ng-template">
+      <ion-view title="Key Hunter - {{ player.name }}">
+        <ion-content>
+          <div class="row">
+            <div class="col col-33" ng-repeat="key in keys">        
+              <button class="button icon ion-key" ng-class="key.state" disabled></button>
+            </div>
+          </div>
 
-      <ion-nav-view animation="slide-left-right"></ion-nav-view>
+          <!-- Key download progress -->
 
-      <!--
-      <script id="tabs.html" type="text/ng-template">
-          <ion-tabs class="tabs-icon-top tabs-positive">
+          <div class="list">
+            <a class="item item-avatar" ng-repeat="beacon in beaconsInRange">
+                <h2>{{ beaconIdToPlayerName[beacon.minor] }}</h2>
+                <p>{{ beacon.distance }}</p>
+            </a>
+          <div>
 
-              <ion-tab title="Home" icon="ion-home" href="#/tab/home">
-                  <ion-nav-view name="home-tab"></ion-nav-view>
-              </ion-tab>
+          <!-- Attacked / view cool down (active/inactive) -->
 
-              <ion-tab title="About" icon="ion-ios7-information" href="#/tab/about">
-                  <ion-nav-view name="about-tab"></ion-nav-view>
-              </ion-tab>
+          <!-- Find last key -->
 
-              <ion-tab title="Contact" icon="ion-ios7-world" ui-sref="tabs.contact">
-                  <ion-nav-view name="contact-tab"></ion-nav-view>
-              </ion-tab>
+        </ion-content>
+      </ion-view>
+    </script>
 
-          </ion-tabs>
-      </script>
--->
+    <!-- End View -->
 
-      <script id="home.html" type="text/ng-template">
-          <ion-view title="Key Hunter">
-              <ion-content class="padding">
-                  <div class="list card">
-                      <div class="item item-image">
-                          <img src="assets/128.jpg">
-                          <!-- Image by http://uifaces.com/authorized -->
-                      </div>
+<!-- 
 
-                      <div class="item item-avatar">
-                          <h2>Sean Crosbie</h2>
-                          <p>from New Zealand</p>
-                          <!-- http://uinames.com/ -->
-                      </div>
-                  </div>
+          // <div id="progressBar" ng-show="download.state" >
+          //   <progress max="100" value="{{ download.value }}"></progress>
+          // </div>
 
-                  <p>
-                      <a class="button button-block button-positive" href="#/play">Join Game</a>
-                  </p>
-              </ion-content>
-          </ion-view>
-      </script>
+                  // <div class="list">
 
+                  //     <a class="item item-avatar" href="#">
+                  //         <img src="assets/128.jpg">
+                  //         <h2>Venkman</h2>
+                  //         <p>Back off, man. Im a scientist.</p>
+                  //     </a>
+                  //     <a class="item item-avatar" href="#">
+                  //         <img src="assets/128.jpg">
+                  //         <h2>Venkman</h2>
+                  //         <p>Back off, man. Im a scientist.</p>
+                  //     </a>
 
-      <script id="win.html" type="text/ng-template">
+                  // </div>
+
+                  // <ul class="list">
+                  //     <li class="item" ng-repeat="beacon in beacons">
+                  //       <h2>{{ beacon.major }} / {{ beacon.minor }}</h2>
+                  //       <p>{{ beacon.distance }}</p>
+                  //     </li>
+                  // </ul>
+                  
+                  //  <div class="item item-image hide">
+                  //         <img src="assets/hourglass.png" style="width:50%;height:50%">
+                  //         <h2>Attack failed!</h2>
+                  //         <p>{{attack.value}} sec</p>
+                  // </div>
+      <script id="end.html" type="text/ng-template">
       <ion-view title="Key Hunter - Won" class="padding">
 		<ion-content class="padding">
                   <div class="list card">
                       <div class="item item-image">
                           <img src="assets/128.jpg">
-                          <!-- Image by http://uifaces.com/authorized -->
                       </div>
 
                       <div class="item item-avatar">
-                          <h2>You've won!</h2>
+                          <h2>Youve won!</h2>
                       </div>
                   </div>
 
@@ -96,53 +126,7 @@
       
 	  </script>
 	  
-      <script id="play.html" type="text/ng-template">
-          <ion-view title="Key Hunter - Playing" class="padding">
-              <ion-content>
-                  <div class="row">
-                      <div class="col" ng-repeat="key in keys">
-                          <button class="button icon ion-key" ng-class="key.state" ng-click="download.start($index)" ></button>
-                      </div>
-                  </div>
-
-                  <div id="progressBar" ng-show="download.state" >
-                      <progress max="100" value="{{download.value}}"></progress>
-                  </div>
-
-                  <div class="list">
-
-                      <a class="item item-avatar" href="#">
-                          <img src="assets/128.jpg">
-                          <h2>Venkman</h2>
-                          <p>Back off, man. I'm a scientist.</p>
-                      </a>
-                      <a class="item item-avatar" href="#">
-                          <img src="assets/128.jpg">
-                          <h2>Venkman</h2>
-                          <p>Back off, man. I'm a scientist.</p>
-                      </a>
-
-                  </div>
-
-                  <ul class="list">
-                      <li class="item" ng-repeat="beacon in beacons">
-                        <h2>{{ beacon.major }} / {{ beacon.minor }}</h2>
-                        <p>{{ beacon.distance }}</p>
-                      </li>
-                  </ul>
-                  
-                   <div class="item item-image hide">
-                          <img src="assets/hourglass.png" style="width:50%;height:50%">
-                          <h2>Attack failed!</h2>
-                          <p>{{attack.value}} sec</p>
-                  </div>
-                  
-                  <p>
-                      <a class="button icon ion-home" href="#/"> Home</a>
-                  </p>
-              </ion-content>
-          </ion-view>
-      </script>
+      
 
 	  <script id="attacked.html" type="text/ng-template">
           <ion-view title="Key Hunter - Playing" class="padding">
@@ -156,12 +140,12 @@
                   <div class="item item-image">
                           <img src="assets/warning.png">
                           <h2>You are under attack!</h2>
-                          <p>Run if you don't want to lose the key.</p>
+                          <p>Run if you dont want to lose the key.</p>
                   </div>
               </ion-content>
           </ion-view>
       </script>
-
+ -->
       <!--
       <ion-content id="beacontest">
         <ul class="list">
