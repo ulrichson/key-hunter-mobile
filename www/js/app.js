@@ -31,15 +31,15 @@ angular.module('app', ['ionic'])
 })
 
 .controller('AppController', function($scope, $state, $interval) {
-    var gameLoop;
-    var gameIntervalTime = 500;
+    var gameLoopInterval;
+    var gameLoopIntervalTime = 500;
 
-    $scope.beaconsInRange = [];
+    $scope.beaconsInRange;
     $scope.isBeacon = false;
 
-    $scope.showBeaconWithin = 20;
+    $scope.showPlayerWithin = 20;
 
-    $scope.player = {};
+    $scope.selectedPlayer = {};
     $scope.players = [{
       name: "Player 1",
       id: "9728D74C-CD81-4215-B454-FC9E66F38CEA",
@@ -54,7 +54,7 @@ angular.module('app', ['ionic'])
       name: "Player 3",
       id: "AF31C6CA-9A06-477B-9AAA-52C0888697E5",
       major: 11111,
-      minor: 22222
+      minor: 33333
     }];
 
     var KeystateEnum = {
@@ -63,11 +63,12 @@ angular.module('app', ['ionic'])
       WON : "button-positive"
     };
 
-    $scope.beaconIdToPlayerName = {
-      "11111": "Player1",
-      "22222": "Player2",
-      "33333": "Player3",
-      "52642": "Master"
+    // Master major: 52642
+    $scope.beaconToPlayerName = {
+      "1111111111": "Player1",
+      "1111122222": "Player2",
+      "1111133333": "Player3",
+      "5264247840": "Master"
     }
 
     function Key() {
@@ -123,44 +124,47 @@ angular.module('app', ['ionic'])
     // $scope.keys[2].state = KeystateEnum.WON;
 
 
-  // function formatDistance(meters) {
-  //     if(meters > 1) {
-  //         return meters.toFixed(3) + ' m';
-  //     } else {
-  //         return (meters * 100).toFixed(3) + ' cm';
-  //     }
-  // }
+  $scope.formatDistance = function(meters) {
+      if(meters > 1) {
+          return meters.toFixed(3) + ' m';
+      } else {
+          return (meters * 100).toFixed(3) + ' cm';
+      }
+  };
 
   // UI callbacks
   $scope.choosePlayer = function(player) {
-    $scope.player = player;
-    // $state.go("play");
-
+    $scope.isBeacon = false;
+    $scope.selectedPlayer = player;
     window.EstimoteBeacons.startVirtualBeacon(player.major, player.minor, player.id, function() {
-      console.log("Phone is now a beacon");
+      console.log("Virtual Beacon started");
+      gameLoopInterval = setInterval(gameLoop, gameLoopIntervalTime);
       $scope.isBeacon = true;
-
-      // Game loop
-      gameLoop = setInterval(function () {
-        // fetch gamestatus from REST service
-
-      }, gameIntervalTime);
-
+      $scope.$apply();
     });
+  };
+
+  $scope.filterPlayersOutOfRange = function(player) {
+    return player.distance < $scope.showPlayerWithin;
   };
 
   // Init
   document.addEventListener('deviceready', function() {
-    // start looking for beacons
     window.EstimoteBeacons.startRangingBeaconsInRegion(function () {
-        //every now and then get the list of beacons in range
-        setInterval(function () {
-            window.EstimoteBeacons.getBeacons(function (data) {
-                $scope.beaconsInRange = data;
-                $scope.$apply();
-            });
-        }, gameIntervalTime);
+      setInterval(function () {
+        window.EstimoteBeacons.getBeacons(function (data) {
+          $scope.beaconsInRange = data;
+          $scope.$apply();
+          console.log(data);
+        });
+      }, gameLoopIntervalTime);
     });
   }, false);
 
-})
+  // Game Loop
+  var gameLoop = function () {
+    // fetch gamestatus from REST service
+
+  };
+
+});

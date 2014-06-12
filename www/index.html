@@ -26,39 +26,48 @@
       <ion-nav-back-button class="button-icon ion-arrow-left-c">
       </ion-nav-back-button>
     </ion-nav-bar>
-    <ion-nav-view animation="slide-right-left"></ion-nav-view>
+    <ion-nav-view animation="slide-left-right-ios7"></ion-nav-view>
     
     <!-- Home View -->
     <script id="home.html" type="text/ng-template">
       <ion-view title="Choose player">
-        <ion-content>
+        <ion-content has-bouncing="false">
           <div class="list">
-            <a class="item item-avatar" ng-repeat="player in players" ng-click="choosePlayer(player)">
-              <h2>{{ player.name }}</h2>
-              <p>{{ player.major }} / {{ player.minor }}<br><small>{{ player.id }}</small></p>
-            </a>
+            <label class="item item-radio" ng-repeat="player in players" ng-click="choosePlayer(player)">
+              <input type="radio" name="players" ng-checked="player.name == selectedPlayer.name">
+              <div class="item-content">
+                {{ player.name }}
+              </div>
+              <i class="radio-icon ion-checkmark"></i>
+            </label>
           </div>
-          <a class="button button-block button-positive" href="#/play" ng-disabled="!isBeacon">Join Game</a>
+          <a class="button button-full button-calm" href="#/play" ng-disabled="!isBeacon">Join Game</a>
+          <p class="text-center" ng-show="selectedPlayer.name">
+            <small>{{ selectedPlayer.major }} / {{selectedPlayer.minor }}<br>{{ selectedPlayer.id }}</small>
+          </p>
         </ion-content>
       </ion-view>
     </script>
 
     <!-- Play View -->
     <script id="play.html" type="text/ng-template">
-      <ion-view title="Key Hunter - {{ player.name }}">
+      <ion-view title="Key Hunter - {{ selectedPlayer.name }}">
         <ion-content>
           <div class="row">
-            <div class="col col-33" ng-repeat="key in keys">        
-              <button class="button icon ion-key" ng-class="key.state" disabled></button>
+            <div class="col col-33 text-center" ng-repeat="key in keys">        
+              <button class="button button-calm button-large icon ion-key" ng-class="key.state" disabled></button>
             </div>
           </div>
 
           <!-- Key download progress -->
 
           <div class="list">
-            <a class="item item-avatar" ng-repeat="beacon in beaconsInRange">
-                <h2>{{ beaconIdToPlayerName[beacon.minor] }}</h2>
-                <p>{{ beacon.distance }}</p>
+            <a class="item item-avatar item-button-right" ng-repeat="beacon in beaconsInRange | filter: filterPlayersOutOfRange | orderBy: 'distance'">
+                <h2>{{ beaconToPlayerName[beacon.major+""+beacon.minor] }}</h2>
+                <small>{{ formatDistance(beacon.distance) }}</small>
+                <button class="button button-large button-royal">
+                  <i class="icon ion-flash"></i>
+                </button>
             </a>
           <div>
 
