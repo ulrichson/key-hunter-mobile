@@ -18,6 +18,9 @@
     <!-- cordova script (this will be a 404 during development) -->
     <script src="cordova.js"></script>
 
+    <!-- PouchDB -->
+    <script src="lib/pouchdb-2.2.3.min.js"></script>
+
     <!-- your app's js -->
     <script src="js/app.js"></script>
   </head>
@@ -27,6 +30,7 @@
       </ion-nav-back-button>
     </ion-nav-bar>
     <ion-nav-view animation="slide-left-right-ios7"></ion-nav-view>
+
     
     <!-- Home View -->
     <script id="home.html" type="text/ng-template">
@@ -45,6 +49,30 @@
           <p class="text-center" ng-show="selectedPlayer.name">
             <small>{{ selectedPlayer.major }} / {{selectedPlayer.minor }}<br>{{ selectedPlayer.id }}</small>
           </p>
+
+
+            <h2>Gamestatus</h2>
+            <div>
+                Current gamestatus: <span ng-bind="gamestatus.status"></span><br>
+                Set gamestatus:<br>
+                <input type="text" ng-model="gamestatus.status" style="border: 1px solid;width:200px" /><button ng-click="storeGamestatus()">Store in DB</button>
+            </div>
+
+            <h2>attacks</h2>
+            <div>
+                Current Attacks:
+                <div ng-repeat="attack in attacks">attacker: {{attack.attacker}}, victim: {{attack.victim}} <a href="" ng-click="removeAttack(attack._id)">remove</a></div>
+
+                New Victim: <input type="text" ng-model="form.newAttackVictim" style="border: 1px solid;width:100px" /><button ng-click="attack()">Attack!</button>
+            </div>
+
+            <h2>stealings</h2>
+            <div>
+                Current Stealings:
+                <div ng-repeat="stealing in stealings">attacker: {{stealing.attacker}}, victim: {{stealing.victim}} <a href="" ng-click="removeStealing(stealing._id)">remove</a></div>
+
+                New Victim: <input type="text" ng-model="form.newStealingVictim" style="border: 1px solid;width:100px" /><button ng-click="steal()">Steal!</button>
+            </div>
         </ion-content>
       </ion-view>
     </script>

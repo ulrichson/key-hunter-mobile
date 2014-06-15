@@ -17,6 +17,113 @@ angular.module('app', ['ionic'])
   $urlRouterProvider.otherwise("/");
 })
 
+.factory('myPouch', [function() {
+
+    var mydb = new PouchDB('ng-pouch');
+    PouchDB.replicate('ng-pouch', 'http://mdix.iriscouch.com/keyhunter', {continuous: true});
+    PouchDB.replicate('http://mdix.iriscouch.com/keyhunter', 'ng-pouch', {continuous: true});
+    return mydb;
+
+}])
+.factory('pouchWrapper', ['$q', '$rootScope', 'myPouch', function($q, $rootScope, myPouch) {
+
+    return {
+        get: function(id){
+            var deferred = $q.defer();
+            myPouch.get(id, function(err, res) {
+                $rootScope.$apply(function() {
+                    if (err) {
+                        deferred.reject(err);
+                        console.warn(err);
+                    } else {
+                        deferred.resolve(res);
+                        console.log(res);
+                    }
+                });
+            });
+            return deferred.promise;
+        },
+        put: function(doc, id, rev){
+            var deferred = $q.defer();
+            myPouch.put(doc, id, rev, function(err, res) {
+                $rootScope.$apply(function() {
+                    if (err) {
+                        deferred.reject(err);
+                        console.warn(err);
+                    } else {
+                        deferred.resolve(res);
+                        console.log(res);
+                    }
+                });
+            });
+            return deferred.promise;
+        },
+        add: function(doc) {
+            var deferred = $q.defer();
+            myPouch.post(doc, function(err, res) {
+                $rootScope.$apply(function() {
+                    if (err) {
+                        deferred.reject(err)
+                    } else {
+                        deferred.resolve(res)
+                    }
+                });
+            });
+            return deferred.promise;
+        },
+        remove: function(id) {
+            var deferred = $q.defer();
+            myPouch.get(id, function(err, doc) {
+                $rootScope.$apply(function() {
+                    if (err) {
+                        deferred.reject(err);
+                    } else {
+                        myPouch.remove(doc, function(err, res) {
+                            $rootScope.$apply(function() {
+                                if (err) {
+                                    deferred.reject(err)
+                                } else {
+                                    deferred.resolve(res)
+                                }
+                            });
+                        });
+                    }
+                });
+            });
+            return deferred.promise;
+        }
+    }
+
+}])
+.factory('listener', ['$rootScope', 'myPouch', function($rootScope, myPouch) {
+
+    myPouch.changes({
+        continuous: true,
+        onChange: function(change) {
+            if (change.deleted === true) {
+                $rootScope.$apply(function() {
+                    $rootScope.$broadcast('deleteDBentry', change.id);
+                });
+            }else{
+                $rootScope.$apply(function() {
+                    myPouch.get(change.id, function(err, doc) {
+                        $rootScope.$apply(function() {
+                            if (err) console.log(err);
+                            if(doc._id == "gamestatus") {
+                                $rootScope.$broadcast('updateGamestatus', doc);
+                            }else if(doc.type == "attack"){
+                                $rootScope.$broadcast('updateAttacks', doc);
+                            }else if(doc.type == "stealing"){
+                                $rootScope.$broadcast('updateStealings', doc);
+                            }
+                        })
+                    });
+                })
+            }
+        }
+    })
+}])
+
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
@@ -30,7 +137,78 @@ angular.module('app', ['ionic'])
   });
 })
 
-.controller('AppController', function($scope, $state, $interval) {
+.controller('AppController', ['$scope', '$state', '$interval', 'listener', 'pouchWrapper', function($scope, $state, $interval, listener, pouchWrapper) {
+    $scope.playerId = 123123;
+    $scope.form = {};
+
+    // gamestatus
+    pouchWrapper.get('gamestatus').then(function(res){
+        $scope.gamestatus=res;
+    });
+    $scope.$on('updateGamestatus', function(event, doc) {
+        $scope.gamestatus = doc;
+    });
+    $scope.storeGamestatus = function() {
+        pouchWrapper.put($scope.gamestatus,$scope.gamestatus._id, $scope.gamestatus._rev);
+    };
+    $scope.$on('deleteDBentry', function(event, id) {
+        for (var i = 0; i<$scope.attacks.length; i++) {
+            if ($scope.attacks[i]._id === id) {
+                $scope.attacks.splice(i,1);
+            }
+        };
+        for (var i = 0; i<$scope.stealings.length; i++) {
+            if ($scope.stealings[i]._id === id) {
+                $scope.stealings.splice(i,1);
+            }
+        }
+    });
+
+    //attacks
+    $scope.attacks = [];
+    $scope.attack = function () {
+        pouchWrapper.add({
+            type : "attack",
+            attacker: $scope.playerId,
+            victim: $scope.form.newAttackVictim
+        });
+        $scope.form.newAttackVictim = '';
+    };
+    $scope.removeAttack = function(id){
+        pouchWrapper.remove(id).then(function(res) {
+            // console.log(res);
+        }, function(reason) {
+            console.warn(reason);
+        });
+    };
+    $scope.$on('updateAttacks', function(event, doc) {
+        $scope.attacks.push(doc);
+    });
+
+
+    //stealings
+    $scope.stealings = [];
+    $scope.steal = function () {
+        pouchWrapper.add({
+            type : "stealing",
+            attacker: $scope.playerId,
+            victim: $scope.form.newStealingVictim
+        });
+        $scope.form.newStealingVictim = '';
+    };
+    $scope.removeStealing = function(id){
+        pouchWrapper.remove(id).then(function(res) {
+            // console.log(res);
+        }, function(reason) {
+            console.warn(reason);
+        });
+    };
+    $scope.$on('updateStealings', function(event, doc) {
+        $scope.stealings.push(doc);
+    });
+
+
+
     var gameLoopInterval;
     var gameLoopIntervalTime = 500;
 
@@ -167,4 +345,4 @@ angular.module('app', ['ionic'])
 
   };
 
-});
+}]);
