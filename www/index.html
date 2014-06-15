@@ -35,8 +35,9 @@
           <div class="list">
             <label class="item item-radio" ng-repeat="player in players" ng-click="choosePlayer(player)">
               <input type="radio" name="players" ng-checked="player.name == selectedPlayer.name">
-              <div class="item-content">
-                {{ player.name }}
+              <div class="item item-avatar">
+                 <img src="{{player.img}}"> 
+                 <h2>{{ player.name }} </h2>
               </div>
               <i class="radio-icon ion-checkmark"></i>
             </label>
