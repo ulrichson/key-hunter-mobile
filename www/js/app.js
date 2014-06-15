@@ -222,17 +222,22 @@ angular.module('app', ['ionic'])
       name: "Player 1",
       id: "9728D74C-CD81-4215-B454-FC9E66F38CEA",
       major: 11111,
-      minor: 11111
+      minor: 11111,
+      img: "assets/player1.jpg"
     }, {
       name: "Player 2",
       id: "A4B015E9-544D-431A-B4AA-3ABE0FFFD804",
       major: 11111,
-      minor: 22222
+      minor: 22222,
+      img: "assets/player2.jpg"
+      
     }, {
       name: "Player 3",
       id: "AF31C6CA-9A06-477B-9AAA-52C0888697E5",
       major: 11111,
-      minor: 33333
+      minor: 33333,
+      img: "assets/player3.jpg"
+      
     }];
 
     var KeystateEnum = {
