@@ -60,22 +60,37 @@
           </div>
 
           <!-- Key download progress -->
-
-          <div class="list">
-            <a class="item item-avatar item-button-right" ng-repeat="beacon in beaconsInRange | filter: filterPlayersOutOfRange | orderBy: 'distance'">
+          <!-- Find last key -->
+          <ion-card>
+            <div class="item item-divider">
+              Masterkey
+            </div>
+            <div class="item item-text-wrap">
+              You collected all keys, go find the last key!
+            </div>
+          </ion-card>
+          <ion-list>
+            <div class="item item-divider">
+              Players/Keys near
+            </div>
+            <a class="item item-avatar item-button-right" ng-repeat="beacon in beaconsInRange | filter: filterPlayersOutOfRange | orderBy: 'distance' | limitTo: 3">
                 <h2>{{ beaconToPlayerName[beacon.major+""+beacon.minor] }}</h2>
                 <small>{{ formatDistance(beacon.distance) }}</small>
                 <button class="button button-large button-royal">
                   <i class="icon ion-flash"></i>
                 </button>
             </a>
-          <div>
-
-          <!-- Attacked / view cool down (active/inactive) -->
-
-          <!-- Find last key -->
-
+          </ion-list>
+          <div class="item item-image hide">
+            <img src="assets/warning.png">
+            <h2>You are under attack!</h2>
+            <p>Run if you dont want to lose the key.</p>
+          </div>
         </ion-content>
+        <!-- Attacked / view cool down (active/inactive) -->
+        <ion-footer-bar align-title="left" class="bar-assertive">
+            <div class="title ion-clock"> You can not attack for {{attackTimeOut.seconds}} seconds</div>
+        </ion-footer-bar>
       </ion-view>
     </script>
 
