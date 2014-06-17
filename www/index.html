@@ -81,8 +81,13 @@
       <ion-view title="Key Hunter - {{ selectedPlayer.name }}">
         <ion-content>
           <div class="row">
+<<<<<<< HEAD
             <div class="col col-33 text-center" ng-repeat="key in selectedPlayer.keys">
               <button class="button button-large icon ion-key" ng-class="key.state" ></button>
+=======
+            <div class="col col-33 text-center" ng-repeat="key in keys">        
+              <button class="button button-large icon ion-key" ng-class="key.state" disabled></button>
+>>>>>>> 9ad2000e654e720091e2e8a85a4216af175390f8
             </div>
           </div>
 
@@ -113,14 +118,17 @@
             </a>
           </ion-list>
           <div class="item item-image" ng-show="underAttack">
+<<<<<<< HEAD
             <button ng-click="defend()">Simuliere abhauen</button>
+=======
+>>>>>>> 9ad2000e654e720091e2e8a85a4216af175390f8
             <img src="assets/warning.png">
             <h2>You are under attack!</h2>
             <p>Run if you dont want to lose the key.</p>
           </div>
         </ion-content>
         <!-- Attacked / view cool down (active/inactive) -->
-        <ion-footer-bar align-title="left" class="bar-assertive">
+        <ion-footer-bar align-title="left" class="bar-assertive" ng-show="attackTimeOut">
             <div class="title ion-clock"> You can not attack for {{attackTimeOut.seconds}} seconds</div>
         </ion-footer-bar>
       </ion-view>
@@ -163,7 +171,7 @@
                   // </div>
       <script id="end.html" type="text/ng-template">
       <ion-view title="Key Hunter - Won" class="padding">
-		<ion-content class="padding">
+    <ion-content class="padding">
                   <div class="list card">
                       <div class="item item-image">
                           <img src="assets/128.jpg">
@@ -180,11 +188,11 @@
               </ion-content>
       </ion-view>
       
-	  </script>
-	  
+    </script>
+    
       
 
-	  <script id="attacked.html" type="text/ng-template">
+    <script id="attacked.html" type="text/ng-template">
           <ion-view title="Key Hunter - Playing" class="padding">
               <ion-content>
                   <div class="row">
