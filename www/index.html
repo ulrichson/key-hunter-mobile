@@ -104,7 +104,7 @@
             <div class="item item-divider">
               Players/Keys near
             </div>
-            <a class="item item-avatar item-button-right" ng-repeat="beacon in beaconsInRange | filter: filterPlayersOutOfRange | orderBy: 'distance' | limitTo: 3">
+            <a class="item item-avatar item-button-right" ng-repeat="beacon in beaconsInRange | filter: filterBeacons | orderBy: 'distance' | limitTo: 3">
                 <h2>{{ beaconToPlayerName[beacon.major+""+beacon.minor] }}</h2>
                 <small>{{ formatDistance(beacon.distance) }}</small>
                 <button class="button button-large button-royal" ng-click="attack(beacon)">

@@ -355,6 +355,8 @@ angular.module('app', ['ionic'])
     $scope.isBeacon = false;
     $scope.selectedPlayer = player;
     if(typeof window.EstimoteBeacons === "undefined") {
+        console.log("Starting Simulation mode");
+        
         //simulation
         $scope.isBeacon = true;
         if($scope.selectedPlayer.name == "Player 1") {
@@ -377,6 +379,7 @@ angular.module('app', ['ionic'])
             }];
         }
     }else{
+        console.log("Starting Virtual Beacon mode");
         window.EstimoteBeacons.startVirtualBeacon(player.major, player.minor, player.id, function () {
             console.log("Virtual Beacon started");
             gameLoopInterval = setInterval(gameLoop, gameLoopIntervalTime);
@@ -386,24 +389,25 @@ angular.module('app', ['ionic'])
     }
   };
 
-  $scope.filterPlayersOutOfRange = function(player) {
-    return player.distance < $scope.showPlayerWithin;
-  };
+    $scope.filterBeacons = function(beacon) {
+        return beacon.distance < $scope.showPlayerWithin;
+    };
 
-  // Init
-  document.addEventListener('deviceready', function() {
-      if(typeof window.EstimoteBeacons !== "undefined") {
-          window.EstimoteBeacons.startRangingBeaconsInRegion(function () {
-              setInterval(function () {
-                  window.EstimoteBeacons.getBeacons(function (data) {
-                      $scope.beaconsInRange = data;
-                      $scope.$apply();
-                      console.log(data);
-                  });
+    // Init
+    document.addEventListener('deviceready', function() {
+        if(typeof window.EstimoteBeacons !== "undefined") {
+            console.log("Ranging for beacons in region");
+            window.EstimoteBeacons.startRangingBeaconsInRegion(function () {
+                setInterval(function () {
+                      window.EstimoteBeacons.getBeacons(function (data) {
+                            $scope.beaconsInRange = data;
+                            $scope.$apply();
+                            console.log(data);
+                      });
               }, gameLoopIntervalTime);
           });
-      }
-  }, false);
+        }
+    }, false);
 
     // set some presets
     $scope.players[0].keys[0].state = KeystateEnum.WON;
