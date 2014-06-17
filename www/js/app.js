@@ -338,53 +338,51 @@ angular.module('app', ['ionic'])
         _interval : 0
     }
 
-
-
-  $scope.formatDistance = function(meters) {
-      if(meters > 1) {
-          return meters.toFixed(3) + ' m';
-      } else {
-          return (meters * 100).toFixed(3) + ' cm';
-      }
-  };
-
-  // UI callbacks
-  $scope.choosePlayer = function(player) {
-    $scope.isBeacon = false;
-    $scope.selectedPlayer = player;
-    if(typeof window.EstimoteBeacons === "undefined") {
-        console.log("Starting Simulation mode");
-        
-        //simulation
-        $scope.isBeacon = true;
-        if($scope.selectedPlayer.name == "Player 1") {
-            $scope.beaconsInRange = [{
-                major: 11111,
-                minor: 22222,
-                distance: 15
-            }];
-        }else if($scope.selectedPlayer.name == "Player 2") {
-            $scope.beaconsInRange = [{
-                major: 11111,
-                minor: 11111,
-                distance: 15
-            }];
-        }else if($scope.selectedPlayer.name == "Player 3") {
-            $scope.beaconsInRange = [{
-                major: 11111,
-                minor: 11111,
-                distance: 15
-            }];
+    $scope.formatDistance = function(meters) {
+        if(meters > 1) {
+            return meters.toFixed(3) + ' m';
+        } else {
+            return (meters * 100).toFixed(3) + ' cm';
         }
-    }else{
-        console.log("Starting Virtual Beacon mode");
-        window.EstimoteBeacons.startVirtualBeacon(player.major, player.minor, player.id, function () {
-            console.log("Virtual Beacon started");
+    };
+
+    // UI callbacks
+    $scope.choosePlayer = function(player) {
+        $scope.isBeacon = false;
+        $scope.selectedPlayer = player;
+        if(typeof window.EstimoteBeacons === "undefined") {
+            console.log("Starting Simulation mode");
+            
+            //simulation
             $scope.isBeacon = true;
-            $scope.$apply();
-        });
-    }
-  };
+            if($scope.selectedPlayer.name == "Player 1") {
+                $scope.beaconsInRange = [{
+                    major: 11111,
+                    minor: 22222,
+                    distance: 15
+                }];
+            }else if($scope.selectedPlayer.name == "Player 2") {
+                $scope.beaconsInRange = [{
+                    major: 11111,
+                    minor: 11111,
+                    distance: 15
+                }];
+            }else if($scope.selectedPlayer.name == "Player 3") {
+                $scope.beaconsInRange = [{
+                    major: 11111,
+                    minor: 11111,
+                    distance: 15
+                }];
+            }
+        }else{
+            console.log("Starting Virtual Beacon mode");
+            window.EstimoteBeacons.startVirtualBeacon(player.major, player.minor, player.id, function () {
+                console.log("Virtual Beacon started");
+                $scope.isBeacon = true;
+                $scope.$apply();
+            });
+        }
+    };
 
     $scope.filterBeacons = function(beacon) {
         return beacon.distance < $scope.showPlayerWithin;
