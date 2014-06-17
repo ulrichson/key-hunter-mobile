@@ -63,8 +63,6 @@
             <div>
                 Current Attacks:
                 <div ng-repeat="attack in attacks">attacker: {{attack.attacker}}, victim: {{attack.victim}} <a href="" ng-click="removeAttack(attack._id)">remove</a></div>
-
-                New Victim: <input type="text" ng-model="form.newAttackVictim" style="border: 1px solid;width:100px" /><button ng-click="attack()">Attack!</button>
             </div>
 
             <h2>stealings</h2>
@@ -83,14 +81,18 @@
       <ion-view title="Key Hunter - {{ selectedPlayer.name }}">
         <ion-content>
           <div class="row">
-            <div class="col col-33 text-center" ng-repeat="key in keys">        
-              <button class="button button-calm button-large icon ion-key" ng-class="key.state" disabled></button>
+            <div class="col col-33 text-center" ng-repeat="key in selectedPlayer.keys">
+              <button class="button button-large icon ion-key" ng-class="key.state" ></button>
             </div>
           </div>
 
           <!-- Key download progress -->
           <!-- Find last key -->
           <ion-card>
+            <div id="progressBar" ng-show="download.state" >
+                <progress max="100" value="{{ download.value }}"></progress>
+                wwwwwww{{runningAttack.state}}xxxxxxx
+            </div>
             <div class="item item-divider">
               Masterkey
             </div>
@@ -98,19 +100,20 @@
               You collected all keys, go find the last key!
             </div>
           </ion-card>
-          <ion-list>
+          <ion-list ng-show="!underAttack">
             <div class="item item-divider">
               Players/Keys near
             </div>
             <a class="item item-avatar item-button-right" ng-repeat="beacon in beaconsInRange | filter: filterPlayersOutOfRange | orderBy: 'distance' | limitTo: 3">
                 <h2>{{ beaconToPlayerName[beacon.major+""+beacon.minor] }}</h2>
                 <small>{{ formatDistance(beacon.distance) }}</small>
-                <button class="button button-large button-royal">
+                <button class="button button-large button-royal" ng-click="attack(beacon)">
                   <i class="icon ion-flash"></i>
                 </button>
             </a>
           </ion-list>
-          <div class="item item-image hide">
+          <div class="item item-image" ng-show="underAttack">
+            <button ng-click="defend()">Simuliere abhauen</button>
             <img src="assets/warning.png">
             <h2>You are under attack!</h2>
             <p>Run if you dont want to lose the key.</p>
