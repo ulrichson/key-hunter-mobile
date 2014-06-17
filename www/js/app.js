@@ -240,8 +240,6 @@ angular.module('app', ['ionic'])
         WON : "button-positive"
     };
 
-
-    var gameLoopInterval;
     var gameLoopIntervalTime = 500;
 
     $scope.beaconsInRange;
@@ -382,7 +380,6 @@ angular.module('app', ['ionic'])
         console.log("Starting Virtual Beacon mode");
         window.EstimoteBeacons.startVirtualBeacon(player.major, player.minor, player.id, function () {
             console.log("Virtual Beacon started");
-            gameLoopInterval = setInterval(gameLoop, gameLoopIntervalTime);
             $scope.isBeacon = true;
             $scope.$apply();
         });
