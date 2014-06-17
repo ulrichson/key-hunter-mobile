@@ -37,7 +37,7 @@ angular.module('app', ['ionic'])
                         console.warn(err);
                     } else {
                         deferred.resolve(res);
-                        console.log(res);
+                        console.log("db get:",res);
                     }
                 });
             });
@@ -52,7 +52,7 @@ angular.module('app', ['ionic'])
                         console.warn(err);
                     } else {
                         deferred.resolve(res);
-                        console.log(res);
+                        console.log("db put:",res);
                     }
                 });
             });
@@ -111,10 +111,8 @@ angular.module('app', ['ionic'])
                             if (err) console.log(err);
                             if(doc._id == "gamestatus") {
                                 $rootScope.$broadcast('updateGamestatus', doc);
-                            }else if(doc.type == "attack"){
-                                $rootScope.$broadcast('updateAttacks', doc);
-                            }else if(doc.type == "stealing"){
-                                $rootScope.$broadcast('updateStealings', doc);
+                            }else if(doc._id.indexOf('player') == 0){
+                                $rootScope.$broadcast('updatePlayer', doc);
                             }
                         })
                     });
@@ -137,10 +135,7 @@ angular.module('app', ['ionic'])
   });
 })
 
-.controller('AppController', ['$scope', '$state', '$interval', 'listener', 'pouchWrapper', function($scope, $state, $interval, listener, pouchWrapper) {
-    //TODO: michael - add reset method
-    $scope.form = {};
-
+.controller('AppController', ['$scope', '$state', '$q', '$interval', 'listener', 'pouchWrapper', function($scope, $state, $q, $interval, listener, pouchWrapper) {
     // gamestatus
     pouchWrapper.get('gamestatus').then(function(res){
         $scope.gamestatus=res;
@@ -151,95 +146,11 @@ angular.module('app', ['ionic'])
     $scope.storeGamestatus = function() {
         pouchWrapper.put($scope.gamestatus,$scope.gamestatus._id, $scope.gamestatus._rev);
     };
-    $scope.$on('deleteDBentry', function(event, id) {
-        for (var i = 0; i<$scope.attacks.length; i++) {
-            if ($scope.attacks[i]._id === id) {
-                $scope.attacks.splice(i,1);
-            }
-        };
-        for (var i = 0; i<$scope.stealings.length; i++) {
-            if ($scope.stealings[i]._id === id) {
-                $scope.stealings.splice(i,1);
-            }
-        }
-    });
-
-    //attacks
-    $scope.attacks = [];
-    $scope.underAttack = false;
-    $scope.attack = function (beacon) {
-        pouchWrapper.add({
-            type : "attack",
-            attacker: $scope.selectedPlayer.id,
-            victim: $scope.beaconToPlayerId[beacon.major+""+beacon.minor],
-            state: "inprogress"
-        });
-        $scope.download.start();
-    };
-    $scope.defend = function() {
-      if($scope.underAttack){
-          $scope.runningAttack.state = "defended";
-          $scope.underAttack = false;
-          pouchWrapper.put($scope.runningAttack,$scope.runningAttack._id, $scope.runningAttack._rev);
-      }
-    };
-    $scope.removeAttack = function(id){
-        pouchWrapper.remove(id).then(function(res) {
-            // console.log(res);
-        }, function(reason) {
-            console.warn(reason);
-        });
-    };
-    $scope.$on('updateAttacks', function(event, doc) {
-        $scope.attacks.push(doc);
-
-        // check if my attack was defended
-        for (var i = 0; i<$scope.attacks.length; i++) {
-            if ($scope.attacks[i].attacker === $scope.selectedPlayer.id) {
-                $scope.runningAttack = $scope.attacks[i];
-            }
-        }
-        if(typeof $scope.runningAttack !== "undefined" && $scope.runningAttack.state == "defended") {
-            $scope.download.stop();
-        }
-
-        // check for incoming attacks
-        for (var i = 0; i<$scope.attacks.length; i++) {
-            if ($scope.attacks[i].victim === $scope.selectedPlayer.id && $scope.attacks[i].state === "inprogress" ) {
-                $scope.underAttack = true;
-                $scope.runningAttack = $scope.attacks[i];
-            }
-        }
-    });
-
-
-    //stealings
-    $scope.stealings = [];
-    $scope.steal = function () {
-        pouchWrapper.add({
-            type : "stealing",
-            attacker: $scope.playerId,
-            victim: $scope.form.newStealingVictim
-        });
-        $scope.form.newStealingVictim = '';
-    };
-    $scope.removeStealing = function(id){
-        pouchWrapper.remove(id).then(function(res) {
-            // console.log(res);
-        }, function(reason) {
-            console.warn(reason);
-        });
-    };
-    $scope.$on('updateStealings', function(event, doc) {
-        $scope.stealings.push(doc);
-    });
-
 
     var KeystateEnum = {
         MISSING : "button-light",
         WON : "button-positive"
     };
-
 
     var gameLoopInterval;
     var gameLoopIntervalTime = 500;
@@ -248,38 +159,7 @@ angular.module('app', ['ionic'])
     $scope.isBeacon = false;
 
     $scope.showPlayerWithin = 20;
-
     $scope.selectedPlayer = {};
-    $scope.players = [{
-      name: "Player 1",
-      id: "9728D74C-CD81-4215-B454-FC9E66F38CEA",
-      major: 11111,
-      minor: 11111,
-      img: "assets/player1.jpg",
-      keys: [
-          new Key(), new Key(), new Key()
-      ]
-    }, {
-      name: "Player 2",
-      id: "A4B015E9-544D-431A-B4AA-3ABE0FFFD804",
-      major: 11111,
-      minor: 22222,
-      img: "assets/player2.jpg",
-      keys: [
-          new Key(), new Key(), new Key()
-      ]
-      
-    }, {
-      name: "Player 3",
-      id: "AF31C6CA-9A06-477B-9AAA-52C0888697E5",
-      major: 11111,
-      minor: 33333,
-      img: "assets/player3.jpg",
-      keys: [
-          new Key(), new Key(), new Key()
-      ]
-      
-    }];
 
 
     // Master major: 52642
@@ -290,9 +170,9 @@ angular.module('app', ['ionic'])
       "5264247840": "Master"
     };
     $scope.beaconToPlayerId = {
-        "1111111111": "9728D74C-CD81-4215-B454-FC9E66F38CEA",
-        "1111122222": "A4B015E9-544D-431A-B4AA-3ABE0FFFD804",
-        "1111133333": "AF31C6CA-9A06-477B-9AAA-52C0888697E5",
+        "1111111111": "player1",
+        "1111122222": "player2",
+        "1111133333": "player3",
         "5264247840": "Master"
     };
 
@@ -307,7 +187,7 @@ angular.module('app', ['ionic'])
         start : function() {
             $scope.download.state = true;
             $scope.download._interval = $interval(function() {
-                $scope.download.value >= 100 ? $scope.download.won() : $scope.download.value++;
+                $scope.download.value >= 500 ? $scope.download.won() : $scope.download.value++;
             }, 50)
         },
         stop : function () {
@@ -325,20 +205,20 @@ angular.module('app', ['ionic'])
             }
 
             if(downloaded == $scope.selectedPlayer.keys.length){
-              // redirectTo: '/win';
-              // alert($location);
-              // window.location.href = '#/win'
               $state.go("end");
             }
         },
         won : function () {
             //$scope.keys[$scope.download.index].state = KeystateEnum.WON;
+            // TODO hier muss der erste key des victims gestolen werden
+
+
             console.warn("you have won!!!");
             $scope.download.stop();
-
+            $scope.selectedPlayer.attackTimeOut = true;
         },
         _interval : 0
-    }
+    };
 
 
 
@@ -351,25 +231,50 @@ angular.module('app', ['ionic'])
   };
 
   // UI callbacks
+    $scope.attack = function(beacon){
+        var victim = $scope.beaconToPlayerId[beacon.major+""+beacon.minor];
+        $scope.players[$scope.getPlayerArrayId(victim)].underAttack = $scope.selectedPlayer._id;
+        $scope.download.start();
+    };
+    $scope.defend = function(){     // TODO Ulrich: diese methode aufrufen wenn beacon out of range
+        $scope.players[$scope.getPlayerArrayId($scope.selectedPlayer.underAttack)].attackTimeOut = true;
+        $scope.selectedPlayer.underAttack = false;
+    };
+
+    $scope.$on('updatePlayer', function(event, doc) {
+        var id = $scope.getPlayerArrayId(doc._id);
+        $scope.players[id]=doc;
+        if($scope.selectedPlayer._id == $scope.players[id]._id) $scope.selectedPlayer = $scope.players[id];
+
+
+        if($scope.selectedPlayer.underAttack){
+            //attack is going on, nothing to do right now
+        }
+        if($scope.selectedPlayer.attackTimeOut){
+            $scope.download.stop();
+            // TODO hier muss der cooldown angezeigt werden
+        }
+    });
+
   $scope.choosePlayer = function(player) {
     $scope.isBeacon = false;
     $scope.selectedPlayer = player;
     if(typeof window.EstimoteBeacons === "undefined") {
         //simulation
         $scope.isBeacon = true;
-        if($scope.selectedPlayer.name == "Player 1") {
+        if($scope.selectedPlayer._id == "player1") {
             $scope.beaconsInRange = [{
                 major: 11111,
                 minor: 22222,
                 distance: 15
             }];
-        }else if($scope.selectedPlayer.name == "Player 2") {
+        }else if($scope.selectedPlayer._id == "player2") {
             $scope.beaconsInRange = [{
                 major: 11111,
                 minor: 11111,
                 distance: 15
             }];
-        }else if($scope.selectedPlayer.name == "Player 3") {
+        }else if($scope.selectedPlayer._id == "player3") {
             $scope.beaconsInRange = [{
                 major: 11111,
                 minor: 11111,
@@ -405,9 +310,67 @@ angular.module('app', ['ionic'])
       }
   }, false);
 
-    // set some presets
-    $scope.players[0].keys[0].state = KeystateEnum.WON;
-    $scope.players[1].keys[1].state = KeystateEnum.WON;
-    $scope.players[2].keys[2].state = KeystateEnum.WON;
+
+    $scope.resetPlayer = function (id) {
+        $scope.players = $scope.players || [];
+        $scope.players[id].name = "Player "+(id+1);
+        $scope.players[id].major = 1111;
+        $scope.players[id].minor = Array(4).join(id+1);
+        $scope.players[id].img = "assets/player"+(id+1)+".jpg";
+        $scope.players[id].keys = [
+            new Key(), new Key(), new Key()
+        ];
+        $scope.players[id].underAttack = false;
+        $scope.players[id].attackTimeOut = false;
+    };
+
+    $scope.getPlayerArrayId = function (_id) {
+        for(var i=0;i<$scope.players.length;i++){
+            if($scope.players[i]._id == _id) return i;
+        }
+    };
+
+
+    // get players from db and bind any changes to $scope.players
+    $scope.players = $scope.players || [];
+    $q.all([
+        pouchWrapper.get('player1'),
+        pouchWrapper.get('player2'),
+        pouchWrapper.get('player3')
+    ]).then(function(res){
+        $scope.players[0]=res[0];
+        $scope.players[1]=res[1];
+        $scope.players[2]=res[2];
+
+        // players[0].major, players[0].minor, players[0].img,
+        for(var i=0;i<3;i++){
+            (function(i){
+                $scope.$watch("[players["+i+"].name, players["+i+"].keys, players["+i+"].underAttack, players["+i+"].attackTimeOut]", function(newValue, oldValue) {
+                    pouchWrapper.put($scope.players[i],$scope.players[i]._id,$scope.players[i]._rev).then(function(res){
+                        $scope.players[i]._rev = res.rev;
+                    });
+                },true);
+            })(i);
+        }
+
+        //reset players
+
+        $scope.resetPlayer(0);
+        $scope.resetPlayer(1);
+        $scope.resetPlayer(2);
+        // */
+
+        // set some presets
+        $scope.players[0].keys[0].state = KeystateEnum.WON;
+        $scope.players[1].keys[1].state = KeystateEnum.WON;
+        $scope.players[2].keys[2].state = KeystateEnum.WON;
+
+    });
+
+
+
+
+
+
 
 }]);
