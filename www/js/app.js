@@ -280,18 +280,21 @@ angular.module('app', ['ionic'])
     }];
 
 
-    // Master major: 52642
+    // "5264247840": "Master"
     $scope.beaconToPlayerName = {
-      "1111111111": "Player1",
-      "1111122222": "Player2",
-      "1111133333": "Player3",
-      "5264247840": "Master"
+        "1111111111": "Player 1",
+        "1111122222": "Player 2",
+        "1111133333": "Player 3"
     };
     $scope.beaconToPlayerId = {
         "1111111111": "9728D74C-CD81-4215-B454-FC9E66F38CEA",
         "1111122222": "A4B015E9-544D-431A-B4AA-3ABE0FFFD804",
-        "1111133333": "AF31C6CA-9A06-477B-9AAA-52C0888697E5",
-        "5264247840": "Master"
+        "1111133333": "AF31C6CA-9A06-477B-9AAA-52C0888697E5"
+    };
+    $scope.beaconToPlayerImage = {
+        "1111111111": "assets/player1.jpg",
+        "1111122222": "assets/player2.jpg",
+        "1111133333": "assets/player3.jpg"
     };
 
     function Key() {
@@ -384,8 +387,8 @@ angular.module('app', ['ionic'])
         }
     };
 
-    $scope.filterBeacons = function(beacon) {
-        return beacon.distance < $scope.showPlayerWithin;
+    $scope.filterPlayerBeacons = function(beacon) {
+        return typeof $scope.beaconToPlayerName[beacon.major+""+beacon.minor] !== "undefined" && beacon.distance < $scope.showPlayerWithin;
     };
 
     // Init
