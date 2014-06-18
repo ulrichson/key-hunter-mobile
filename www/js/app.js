@@ -160,11 +160,9 @@ angular.module('app', ['ionic'])
     $scope.showPlayerWithin = 20;
     $scope.selectedPlayer = {};
 	
-	$scope.attackTimeOutSec = 0; 
-	
 	$scope.attackTimeout ={
-		_interval = 0;
-		value= 0;
+		_interval : 0,
+		value : 0
 		
 	}
     // "5264247840": "Master"
@@ -302,9 +300,9 @@ angular.module('app', ['ionic'])
         if($scope.selectedPlayer.attackTimeOut){
             $scope.download.stop();
              // TODO hier muss der cooldown angezeigt werden   
-            $scope.attackTimeOutSec.value = 5;         
-            $scope.attackTimeout._interval = $interval(function() {
-                $scope.attackTimeOutSec.value <= 0 ?  $scope.selectedPlayer.attackTimeOut = false : $scope.attackTimeOutSec.value--;
+            $scope.attackTimeOut.value = 5;         
+            $interval(function() {
+                $scope.attackTimeOut.value <= 0 ?  $scope.selectedPlayer.attackTimeOut = false : $scope.attackTimeOut.value--;
             }, 1000, 1)
         }
     });
