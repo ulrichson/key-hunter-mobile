@@ -152,10 +152,6 @@ angular.module('app', ['ionic'])
         WON : "button-positive"
     };
 
-<<<<<<< HEAD
-    var gameLoopInterval;
-=======
->>>>>>> 83a82df5f601bfaa4b6195daa30a752ad58b4f39
     var gameLoopIntervalTime = 500;
 
     $scope.beaconsInRange;
@@ -172,21 +168,15 @@ angular.module('app', ['ionic'])
         "1111133333": "Player 3"
     };
     $scope.beaconToPlayerId = {
-<<<<<<< HEAD
         "1111111111": "player1",
         "1111122222": "player2",
         "1111133333": "player3",
         "5264247840": "Master"
-=======
-        "1111111111": "9728D74C-CD81-4215-B454-FC9E66F38CEA",
-        "1111122222": "A4B015E9-544D-431A-B4AA-3ABE0FFFD804",
-        "1111133333": "AF31C6CA-9A06-477B-9AAA-52C0888697E5"
     };
     $scope.beaconToPlayerImage = {
         "1111111111": "assets/player1.jpg",
         "1111122222": "assets/player2.jpg",
         "1111133333": "assets/player3.jpg"
->>>>>>> 83a82df5f601bfaa4b6195daa30a752ad58b4f39
     };
 
     function Key() {
@@ -283,8 +273,7 @@ angular.module('app', ['ionic'])
         return typeof $scope.beaconToPlayerName[beacon.major+""+beacon.minor] !== "undefined" && beacon.distance < $scope.showPlayerWithin;
     };
 
-<<<<<<< HEAD
-  // UI callbacks
+    // UI callbacks
     $scope.attack = function(beacon){
         var victim = $scope.beaconToPlayerId[beacon.major+""+beacon.minor];
         $scope.players[$scope.getPlayerArrayId(victim)].underAttack = $scope.selectedPlayer._id;
@@ -310,70 +299,58 @@ angular.module('app', ['ionic'])
         }
     });
 
-  $scope.choosePlayer = function(player) {
-    $scope.isBeacon = false;
-    $scope.selectedPlayer = player;
-    if(typeof window.EstimoteBeacons === "undefined") {
-        //simulation
-        $scope.isBeacon = true;
-        if($scope.selectedPlayer._id == "player1") {
-            $scope.beaconsInRange = [{
-                major: 11111,
-                minor: 22222,
-                distance: 15
-            }];
-        }else if($scope.selectedPlayer._id == "player2") {
-            $scope.beaconsInRange = [{
-                major: 11111,
-                minor: 11111,
-                distance: 15
-            }];
-        }else if($scope.selectedPlayer._id == "player3") {
-            $scope.beaconsInRange = [{
-                major: 11111,
-                minor: 11111,
-                distance: 15
-            }];
-        }
-    }else{
-        window.EstimoteBeacons.startVirtualBeacon(player.major, player.minor, player.id, function () {
-            console.log("Virtual Beacon started");
-            gameLoopInterval = setInterval(gameLoop, gameLoopIntervalTime);
+    $scope.choosePlayer = function(player) {
+        $scope.isBeacon = false;
+        $scope.selectedPlayer = player;
+        if(typeof window.EstimoteBeacons === "undefined") {
+            //simulation
             $scope.isBeacon = true;
-            $scope.$apply();
-        });
-    }
-  };
+            if($scope.selectedPlayer._id == "player1") {
+                $scope.beaconsInRange = [{
+                    major: 11111,
+                    minor: 22222,
+                    distance: 15
+                }];
+            }else if($scope.selectedPlayer._id == "player2") {
+                $scope.beaconsInRange = [{
+                    major: 11111,
+                    minor: 11111,
+                    distance: 15
+                }];
+            }else if($scope.selectedPlayer._id == "player3") {
+                $scope.beaconsInRange = [{
+                    major: 11111,
+                    minor: 11111,
+                    distance: 15
+                }];
+            }
+        }else{
+            window.EstimoteBeacons.startVirtualBeacon(player.major, player.minor, player.id, function () {
+                console.log("Virtual Beacon started");
+                gameLoopInterval = setInterval(gameLoop, gameLoopIntervalTime);
+                $scope.isBeacon = true;
+                $scope.$apply();
+            });
+        }
+    };
 
-  $scope.filterPlayersOutOfRange = function(player) {
+    $scope.filterPlayersOutOfRange = function(player) {
     return player.distance < $scope.showPlayerWithin;
-  };
+    };
 
-  // Init
-  document.addEventListener('deviceready', function() {
-      if(typeof window.EstimoteBeacons !== "undefined") {
-          window.EstimoteBeacons.startRangingBeaconsInRegion(function () {
-              setInterval(function () {
-                  window.EstimoteBeacons.getBeacons(function (data) {
-                      $scope.beaconsInRange = data;
-                      $scope.$apply();
-                      console.log(data);
-                  });
-=======
     // Init
     document.addEventListener('deviceready', function() {
         if(typeof window.EstimoteBeacons !== "undefined") {
             console.log("Ranging for beacons in region");
             window.EstimoteBeacons.startRangingBeaconsInRegion(function () {
                 setInterval(function () {
-                      window.EstimoteBeacons.getBeacons(function (data) {
-                            $scope.beaconsInRange = data;
-                            $scope.$apply();
-                            console.log(data);
-                      });
->>>>>>> 83a82df5f601bfaa4b6195daa30a752ad58b4f39
-              }, gameLoopIntervalTime);
-          });
+                    window.EstimoteBeacons.getBeacons(function (data) {
+                        $scope.beaconsInRange = data;
+                        $scope.$apply();
+                        // console.log(data);
+                    });
+                }, gameLoopIntervalTime);
+            });
         }
     }, false);
 
@@ -433,11 +410,4 @@ angular.module('app', ['ionic'])
         $scope.players[2].keys[2].state = KeystateEnum.WON;
 
     });
-
-
-
-
-
-
-
 }]);
