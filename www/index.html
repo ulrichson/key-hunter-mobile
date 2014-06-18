@@ -66,10 +66,13 @@
 
           <!-- Key download progress -->
           <!-- Find last key -->
+
+          <!-- UL: does ion-card exist? -->
           <ion-card>
             <div id="progressBar" ng-show="download.state" >
                 <progress max="500" value="{{ download.value }}"></progress>
             </div>
+            <!-- UL: item needs to be wrapped in ion-list -->
             <div class="item item-divider">
               Masterkey
             </div>
@@ -79,21 +82,36 @@
           </ion-card>
           <ion-list ng-show="!selectedPlayer.underAttack">
             <div class="item item-divider">
-              Players/Keys near
+              Players nearby
             </div>
-            <a class="item item-avatar item-button-right" ng-repeat="beacon in beaconsInRange | filter: filterPlayersOutOfRange | orderBy: 'distance' | limitTo: 3">
+            <a class="item item-avatar item-button-right" ng-repeat="beacon in beaconsInRange | filter: filterPlayerBeacons | orderBy: 'distance'" ng-click="attack(beacon)">
+                <img ng-src="{{ beaconToPlayerImage[beacon.major+''+beacon.minor] }}"> 
                 <h2>{{ beaconToPlayerName[beacon.major+""+beacon.minor] }}</h2>
                 <small>{{ formatDistance(beacon.distance) }}</small>
+                <!--
                 <button class="button button-large button-royal" ng-click="attack(beacon)">
                   <i class="icon ion-flash"></i>
                 </button>
+                -->
             </a>
           </ion-list>
+<<<<<<< HEAD
           <div class="item item-image" ng-show="selectedPlayer.underAttack">
             <button ng-click="defend()">Simuliere abhauen</button>
             <img src="assets/warning.png">
             <h2>You are under attack!</h2>
             <p>Run if you dont want to lose the key.</p>
+=======
+          <div class="list card" ng-show="underAttack">
+            <div class="item item-divider">
+              You are under attack!
+            </div>
+            <div class="item item-text-wrap">
+              <img class="full-image" src="assets/warning.png">
+              <p class="text-center">Run if you dont want to lose the key.</p>
+              <button class="button button-block button-calm" ng-click="defend()">Simuliere abhauen</button>
+            </div>
+>>>>>>> 83a82df5f601bfaa4b6195daa30a752ad58b4f39
           </div>
         </ion-content>
         <!-- Attacked / view cool down (active/inactive) -->
