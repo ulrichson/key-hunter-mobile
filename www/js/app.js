@@ -165,7 +165,7 @@ angular.module('app', ['ionic'])
     $scope.beaconsInRange;
     $scope.isBeacon = false;
 
-    $scope.selectedPlayer = {};
+    $scope.selectedPlayer = null;
     $scope.forceSimulationMode = true;
 	
 	$scope.attackTimeout ={
@@ -318,37 +318,37 @@ angular.module('app', ['ionic'])
                         $scope.beaconsInRange = data;
 
                         // [UNTESTED] check if attacker is still in range
-                        if ($scope.selectedPlayer.underAttack) {
-                            var isAttackerInRange = false;
-                            for (var i = 0; i < data.length; i++) {
-                                if ($scope.beaconToPlayerId[data.major+""+data.minor] == "$scope.selectedPlayer.underAttack" && data.distance < $scope.showPlayerWithin) {
-                                    isAttackerInRange = true;
-                                    break;
-                                }
-                            }
+                        // if ($scope.selectedPlayer.underAttack) {
+                        //     var isAttackerInRange = false;
+                        //     for (var i = 0; i < data.length; i++) {
+                        //         if ($scope.beaconToPlayerId[data.major+""+data.minor] == "$scope.selectedPlayer.underAttack" && data.distance < $scope.showPlayerWithin) {
+                        //             isAttackerInRange = true;
+                        //             break;
+                        //         }
+                        //     }
 
-                            if (!isAttackerInRange) {
-                                $scope.defend();
-                            }
-                        }
+                        //     if (!isAttackerInRange) {
+                        //         $scope.defend();
+                        //     }
+                        // }
 
                         // [UNTESTED] Check if master key is in range
-                        if (scope.hasAllKeys()) {
-                            var isMasterKeyInRange = false;
-                            for (var i = 0; i < data.length; i++) {
-                                if ($scope.beaconToPlayerId[data.major+""+data.minor] == "master" && data.distance < $scope.masteKeyWinDistance) {
-                                    isMasterKeyInRange = true;
-                                    break;
-                               }
-                            }
+                        // if (scope.hasAllKeys()) {
+                        //     var isMasterKeyInRange = false;
+                        //     for (var i = 0; i < data.length; i++) {
+                        //         if ($scope.beaconToPlayerId[data.major+""+data.minor] == "master" && data.distance < $scope.masteKeyWinDistance) {
+                        //             isMasterKeyInRange = true;
+                        //             break;
+                        //        }
+                        //     }
 
-                            if (isMasterKeyInRange) {
-                                // [TODO] end game for other players
-                                for (var i=0; i < $scope.players.length; i++) {
-                                    $scope.players[i].gameEnded = true;
-                                }
-                            }
-                        }
+                        //     if (isMasterKeyInRange) {
+                        //         // [TODO] end game for other players
+                        //         for (var i=0; i < $scope.players.length; i++) {
+                        //             $scope.players[i].gameEnded = true;
+                        //         }
+                        //     }
+                        // }
 
                         $scope.$apply();
                         // console.log(data);
@@ -359,6 +359,7 @@ angular.module('app', ['ionic'])
     };
 
     $scope.hasAllKeys = function() {
+        if ($scope.selectedPlayer == null) return false;
         for(var i = 0 ; i < $scope.selectedPlayer.keys.length; i++) {
             if ($scope.selectedPlayer.keys[i].state != KeystateEnum.WON) {
                 return false;
@@ -386,23 +387,25 @@ angular.module('app', ['ionic'])
     };
 
     $scope.$on('updatePlayer', function(event, doc) {
-        var id = $scope.getPlayerArrayId(doc._id);
-        $scope.players[id]=doc;
-        if($scope.selectedPlayer._id == $scope.players[id]._id) $scope.selectedPlayer = $scope.players[id];
+        if ($scope.selectedPlayer != null) {
+            var id = $scope.getPlayerArrayId(doc._id);
+            $scope.players[id]=doc;
+            if($scope.selectedPlayer._id == $scope.players[id]._id) $scope.selectedPlayer = $scope.players[id];
 
 
-        if($scope.selectedPlayer.underAttack){
-            //attack is going on, nothing to do right now
-        }
-        if($scope.selectedPlayer.attackTimeOut){
-            $scope.download.stop();
-             // TODO hier muss der cooldown angezeigt werden         
-            $interval(function() {
-                $scope.attackTimeout.value <= 0 ?  $scope.selectedPlayer.attackTimeOut = false : $scope.attackTimeout.value--;
-            }, 1000, $scope.penaltyTime + 1);
-        }
-        if(scope.selectedPlayer.gameEnded){
-            $state.go("end");
+            if($scope.selectedPlayer.underAttack){
+                //attack is going on, nothing to do right now
+            }
+            if($scope.selectedPlayer.attackTimeOut){
+                $scope.download.stop();
+                 // TODO hier muss der cooldown angezeigt werden         
+                $interval(function() {
+                    $scope.attackTimeout.value <= 0 ?  $scope.selectedPlayer.attackTimeOut = false : $scope.attackTimeout.value--;
+                }, 1000, $scope.penaltyTime + 1);
+            }
+            if($scope.selectedPlayer.gameEnded){
+                $state.go("end");
+            }
         }
     });
 
