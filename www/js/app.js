@@ -136,6 +136,15 @@ angular.module('app', ['ionic'])
 })
 
 .controller('AppController', ['$scope', '$state', '$q', '$interval', 'listener', 'pouchWrapper', function($scope, $state, $q, $interval, listener, pouchWrapper) {
+
+    // Game parameter
+    $scope.showPlayerWithin = 20; // in meter
+    $scope.showMasterWithin = 0.5; // in meter
+    $scope.masteKeyWinDistance = 0.5 // in meter
+    $scope.downloadTime = 10000; // in ms
+    $scope.penaltyTime = 5; // in s
+    var gameLoopIntervalTime = 500;
+
     // gamestatus
     pouchWrapper.get('gamestatus').then(function(res){
         $scope.gamestatus=res;
@@ -149,45 +158,57 @@ angular.module('app', ['ionic'])
 
     var KeystateEnum = {
         MISSING : "button-light",
-        WON : "button-positive"
+        WON : "button-calm"
     };
 
-<<<<<<< HEAD
-    var gameLoopInterval;
-=======
->>>>>>> 83a82df5f601bfaa4b6195daa30a752ad58b4f39
-    var gameLoopIntervalTime = 500;
 
     $scope.beaconsInRange;
     $scope.isBeacon = false;
 
-    $scope.showPlayerWithin = 20;
     $scope.selectedPlayer = {};
+    $scope.forceSimulationMode = true;
 
+	$scope.attackTimeout ={
+		_interval : 0,
+		value : 0
 
-    // "5264247840": "Master"
+	}
+
     $scope.beaconToPlayerName = {
         "1111111111": "Player 1",
         "1111122222": "Player 2",
         "1111133333": "Player 3"
     };
     $scope.beaconToPlayerId = {
-<<<<<<< HEAD
         "1111111111": "player1",
         "1111122222": "player2",
         "1111133333": "player3",
-        "5264247840": "Master"
-=======
-        "1111111111": "9728D74C-CD81-4215-B454-FC9E66F38CEA",
-        "1111122222": "A4B015E9-544D-431A-B4AA-3ABE0FFFD804",
-        "1111133333": "AF31C6CA-9A06-477B-9AAA-52C0888697E5"
+        "5264247840": "master"
     };
     $scope.beaconToPlayerImage = {
         "1111111111": "assets/player1.jpg",
         "1111122222": "assets/player2.jpg",
         "1111133333": "assets/player3.jpg"
->>>>>>> 83a82df5f601bfaa4b6195daa30a752ad58b4f39
     };
+
+    $scope.beaconToMasterName = {
+        "5264247840": "Master"
+    };
+    $scope.beaconToMasterImage = {
+        "5264247840": "assets/master.png"
+    };
+
+
+    var guid = (function() {
+        function s4() {
+            return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+        }
+        return function() {
+            return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+        };
+    })();
 
     function Key() {
       this.state = KeystateEnum.MISSING
@@ -200,14 +221,14 @@ angular.module('app', ['ionic'])
         start : function() {
             $scope.download.state = true;
             $scope.download._interval = $interval(function() {
-                $scope.download.value >= 500 ? $scope.download.won() : $scope.download.value++;
-            }, 50)
+                $scope.download.value >= 100 ? $scope.download.won() : $scope.download.value++;
+            }, $scope.downloadTime / 100);
         },
         stop : function () {
             $scope.download.value = 0;
             $scope.download.state = false;
             $interval.cancel($scope.download._interval);
-            
+
             downloaded = 0;
             for(var i = 0 ; i < $scope.selectedPlayer.keys.length; i++){
               if($scope.selectedPlayer.keys[i].state == KeystateEnum.WON){
@@ -217,9 +238,9 @@ angular.module('app', ['ionic'])
               }
             }
 
-            if(downloaded == $scope.selectedPlayer.keys.length){
-              $state.go("end");
-            }
+            // if(downloaded == $scope.selectedPlayer.keys.length){
+            //   $state.go("end");
+            // }
         },
         won : function () {
             //$scope.keys[$scope.download.index].state = KeystateEnum.WON;
@@ -228,6 +249,7 @@ angular.module('app', ['ionic'])
 
             console.warn("you have won!!!");
             $scope.download.stop();
+            $scope.attackTimeout.value = $scope.penaltyTime;
             $scope.selectedPlayer.attackTimeOut = true;
         },
         _interval : 0
@@ -242,12 +264,42 @@ angular.module('app', ['ionic'])
     };
 
     // UI callbacks
+    $scope.forceSimulationModeChange = function() {
+        $scope.forceSimulationMode = !$scope.forceSimulationMode; // no idea, why it needs to be set manually...
+        // if (!$scope.forceSimulationMode && typeof window.EstimoteBeacons !== "undefined") {
+        //     window.EstimoteBeacons.stopRangingBeaconsInRegion({
+        //         console.log("Stopped to range for beacons in region");
+        //     });
+        // }
+        $scope.$apply();
+    };
+    $scope.defend = function(){     // TODO Ulrich: diese methode aufrufen wenn beacon out of range
+        $scope.players[$scope.getPlayerArrayId($scope.selectedPlayer.underAttack)].attackTimeOut = true;
+        $scope.selectedPlayer.underAttack = false;
+    };
+
+    $scope.$on('updatePlayer', function(event, doc) {
+        var id = $scope.getPlayerArrayId(doc._id);
+        $scope.players[id]=doc;
+        if($scope.selectedPlayer._id == $scope.players[id]._id) $scope.selectedPlayer = $scope.players[id];
+
+
+        if($scope.selectedPlayer.underAttack){
+            //attack is going on, nothing to do right now
+        }
+        if($scope.selectedPlayer.attackTimeOut){
+            $scope.download.stop();
+            // TODO hier muss der cooldown angezeigt werden
+        }
+    });
+
     $scope.choosePlayer = function(player) {
         $scope.isBeacon = false;
         $scope.selectedPlayer = player;
-        if(typeof window.EstimoteBeacons === "undefined") {
+        console.log("forceSimulationMode: " + $scope.forceSimulationMode);
+        if($scope.forceSimulationMode || typeof window.EstimoteBeacons === "undefined") {
             console.log("Starting Simulation mode");
-            
+
             //simulation
             $scope.isBeacon = true;
             if($scope.selectedPlayer.name == "Player 1") {
@@ -271,20 +323,77 @@ angular.module('app', ['ionic'])
             }
         }else{
             console.log("Starting Virtual Beacon mode");
-            window.EstimoteBeacons.startVirtualBeacon(player.major, player.minor, player.id, function () {
+            window.EstimoteBeacons.startVirtualBeacon(player.major, player.minor, player.beacon_id, function () {
                 console.log("Virtual Beacon started");
                 $scope.isBeacon = true;
                 $scope.$apply();
             });
+
+            console.log("Starting to range for beacons in region");
+            window.EstimoteBeacons.startRangingBeaconsInRegion(function () {
+                console.log("Ranging for beacons in region");
+                setInterval(function () {
+                    window.EstimoteBeacons.getBeacons(function (data) {
+                        $scope.beaconsInRange = data;
+
+                        // [UNTESTED] check if attacker is still in range
+                        if ($scope.selectedPlayer.underAttack) {
+                            var isAttackerInRange = false;
+                            for (var i = 0; i < data.length; i++) {
+                                if ($scope.beaconToPlayerId[data.major+""+data.minor] == "$scope.selectedPlayer.underAttack" && data.distance < $scope.showPlayerWithin) {
+                                    isAttackerInRange = true;
+                                    break;
+                                }
+                            }
+
+                            if (!isAttackerInRange) {
+                                $scope.defend();
+                            }
+                        }
+
+                        // [UNTESTED] Check if master key is in range
+                        if (scope.hasAllKeys()) {
+                            var isMasterKeyInRange = false;
+                            for (var i = 0; i < data.length; i++) {
+                                if ($scope.beaconToPlayerId[data.major+""+data.minor] == "master" && data.distance < $scope.masteKeyWinDistance) {
+                                    isMasterKeyInRange = true;
+                                    break;
+                               }
+                            }
+
+                            if (isMasterKeyInRange) {
+                                // [TODO] end game for other players
+                                for (var i=0; i < $scope.players.length; i++) {
+                                    $scope.players[i].gameEnded = true;
+                                }
+                            }
+                        }
+
+                        $scope.$apply();
+                        // console.log(data);
+                    });
+                }, gameLoopIntervalTime);
+            });
         }
+    };
+
+    $scope.hasAllKeys = function() {
+        for(var i = 0 ; i < $scope.selectedPlayer.keys.length; i++) {
+            if ($scope.selectedPlayer.keys[i].state != KeystateEnum.WON) {
+                return false;
+            }
+        }
+        return true;
     };
 
     $scope.filterPlayerBeacons = function(beacon) {
         return typeof $scope.beaconToPlayerName[beacon.major+""+beacon.minor] !== "undefined" && beacon.distance < $scope.showPlayerWithin;
     };
 
-<<<<<<< HEAD
-  // UI callbacks
+    $scope.filterMasterBeacons = function(beacon) {
+        return typeof $scope.beaconToMasterName[beacon.major+""+beacon.minor] !== "undefined" && beacon.distance < $scope.showMasterWithin;
+    };
+
     $scope.attack = function(beacon){
         var victim = $scope.beaconToPlayerId[beacon.major+""+beacon.minor];
         $scope.players[$scope.getPlayerArrayId(victim)].underAttack = $scope.selectedPlayer._id;
@@ -306,89 +415,35 @@ angular.module('app', ['ionic'])
         }
         if($scope.selectedPlayer.attackTimeOut){
             $scope.download.stop();
-            // TODO hier muss der cooldown angezeigt werden
+             // TODO hier muss der cooldown angezeigt werden
+            $interval(function() {
+                $scope.attackTimeout.value <= 0 ?  $scope.selectedPlayer.attackTimeOut = false : $scope.attackTimeout.value--;
+            }, 1000, $scope.penaltyTime + 1);
+        }
+        if(scope.selectedPlayer.gameEnded){
+            $state.go("end");
         }
     });
 
-  $scope.choosePlayer = function(player) {
-    $scope.isBeacon = false;
-    $scope.selectedPlayer = player;
-    if(typeof window.EstimoteBeacons === "undefined") {
-        //simulation
-        $scope.isBeacon = true;
-        if($scope.selectedPlayer._id == "player1") {
-            $scope.beaconsInRange = [{
-                major: 11111,
-                minor: 22222,
-                distance: 15
-            }];
-        }else if($scope.selectedPlayer._id == "player2") {
-            $scope.beaconsInRange = [{
-                major: 11111,
-                minor: 11111,
-                distance: 15
-            }];
-        }else if($scope.selectedPlayer._id == "player3") {
-            $scope.beaconsInRange = [{
-                major: 11111,
-                minor: 11111,
-                distance: 15
-            }];
-        }
-    }else{
-        window.EstimoteBeacons.startVirtualBeacon(player.major, player.minor, player.id, function () {
-            console.log("Virtual Beacon started");
-            gameLoopInterval = setInterval(gameLoop, gameLoopIntervalTime);
-            $scope.isBeacon = true;
-            $scope.$apply();
-        });
-    }
-  };
-
-  $scope.filterPlayersOutOfRange = function(player) {
-    return player.distance < $scope.showPlayerWithin;
-  };
-
-  // Init
-  document.addEventListener('deviceready', function() {
-      if(typeof window.EstimoteBeacons !== "undefined") {
-          window.EstimoteBeacons.startRangingBeaconsInRegion(function () {
-              setInterval(function () {
-                  window.EstimoteBeacons.getBeacons(function (data) {
-                      $scope.beaconsInRange = data;
-                      $scope.$apply();
-                      console.log(data);
-                  });
-=======
     // Init
     document.addEventListener('deviceready', function() {
-        if(typeof window.EstimoteBeacons !== "undefined") {
-            console.log("Ranging for beacons in region");
-            window.EstimoteBeacons.startRangingBeaconsInRegion(function () {
-                setInterval(function () {
-                      window.EstimoteBeacons.getBeacons(function (data) {
-                            $scope.beaconsInRange = data;
-                            $scope.$apply();
-                            console.log(data);
-                      });
->>>>>>> 83a82df5f601bfaa4b6195daa30a752ad58b4f39
-              }, gameLoopIntervalTime);
-          });
-        }
+        $scope.forceSimulationMode = typeof window.EstimoteBeacons === "undefined";
+        $scope.$apply();
     }, false);
-
 
     $scope.resetPlayer = function (id) {
         $scope.players = $scope.players || [];
         $scope.players[id].name = "Player "+(id+1);
-        $scope.players[id].major = 1111;
-        $scope.players[id].minor = Array(4).join(id+1);
+        $scope.players[id].major = 11111;
+        $scope.players[id].minor = Array(6).join(id+1);
         $scope.players[id].img = "assets/player"+(id+1)+".jpg";
+        $scope.players[id].beacon_id = guid();
         $scope.players[id].keys = [
             new Key(), new Key(), new Key()
         ];
         $scope.players[id].underAttack = false;
         $scope.players[id].attackTimeOut = false;
+        $scope.players[id].gameEnded = false;
     };
 
     $scope.getPlayerArrayId = function (_id) {
@@ -433,11 +488,4 @@ angular.module('app', ['ionic'])
         $scope.players[2].keys[2].state = KeystateEnum.WON;
 
     });
-
-
-
-
-
-
-
 }]);

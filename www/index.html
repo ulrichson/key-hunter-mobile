@@ -37,18 +37,27 @@
       <ion-view title="Choose player">
         <ion-content has-bouncing="false">
           <div class="list">
+            <div class="item item-toggle">
+              Force Simulation Mode
+              <label class="toggle toggle-calm">
+                <input type="checkbox" ng-model="forceSimulationMode" ng-change="forceSimulationModeChange()">
+                  <div class="track">
+                  <div class="handle"></div>
+                </div>
+              </label>
+            </div>
             <label class="item item-radio" ng-repeat="player in players track by player._id" ng-click="choosePlayer(player)">
               <input type="radio" name="players" ng-checked="player.name == selectedPlayer.name">
               <div class="item item-avatar">
-                 <img src="{{player.img}}"> 
+                 <img ng-src="{{player.img}}">
                  <h2>{{ player.name }} </h2>
               </div>
               <i class="radio-icon ion-checkmark"></i>
             </label>
           </div>
           <a class="button button-full button-calm" href="#/play" ng-disabled="!isBeacon">Join Game</a>
-          <p class="text-center" ng-show="selectedPlayer.name">
-            <small>{{ selectedPlayer.major }} / {{selectedPlayer.minor }}<br>{{ selectedPlayer.id }}</small>
+          <p class="text-center" style="color: silver" ng-show="selectedPlayer.name">
+            <small>{{ selectedPlayer.beacon_id }}<br>{{ selectedPlayer.major }} / {{selectedPlayer.minor }}</small>
           </p>
         </ion-content>
       </ion-view>
@@ -57,6 +66,8 @@
     <!-- Play View -->
     <script id="play.html" type="text/ng-template">
       <ion-view title="Key Hunter - {{ selectedPlayer.name }}">
+
+        <!-- Game running -->
         <ion-content>
           <div class="row">
             <div class="col col-33 text-center" ng-repeat="key in selectedPlayer.keys">
@@ -65,21 +76,24 @@
           </div>
 
           <!-- Key download progress -->
+          <div id="progressBar" ng-show="download.state" >
+              <progress max="100" value="{{ download.value }}"></progress>
+          </div>
           <!-- Find last key -->
-
-          <!-- UL: does ion-card exist? -->
-          <ion-card>
-            <div id="progressBar" ng-show="download.state" >
-                <progress max="500" value="{{ download.value }}"></progress>
-            </div>
-            <!-- UL: item needs to be wrapped in ion-list -->
+          <ion-list ng-show="hasAllKeys()">
             <div class="item item-divider">
               Masterkey
             </div>
             <div class="item item-text-wrap">
-              You collected all keys, go find the last key!
+              You collected all keys, go find the last key within a distance of {{ masteKeyDistanceWinDistance }}m!
             </div>
-          </ion-card>
+            <div class="item item-avatar item-button-right" ng-repeat="beacon in beaconsInRange | filter: filterMasterBeacons | orderBy: 'distance'">
+                <img ng-src="{{ beaconToMasterImage[beacon.major+''+beacon.minor] }}">
+                <h2>{{ beaconToMasterName[beacon.major+""+beacon.minor] }}</h2>
+                <small>{{ formatDistance(beacon.distance) }}</small>
+            </div>
+          </div>
+          </ion-list>
           <ion-list ng-show="!selectedPlayer.underAttack">
             <div class="item item-divider">
               Players nearby
@@ -89,21 +103,14 @@
                 <h2>{{ beaconToPlayerName[beacon.major+""+beacon.minor] }}</h2>
                 <small>{{ formatDistance(beacon.distance) }}</small>
                 <!--
-                <button class="button button-large button-royal" ng-click="attack(beacon)">
+                <button class="button button-large button-royal" ng-click="attack(beacon)" ng-disabled="selectedPlayer.attackTimeOut">
                   <i class="icon ion-flash"></i>
                 </button>
                 -->
             </a>
           </ion-list>
-<<<<<<< HEAD
-          <div class="item item-image" ng-show="selectedPlayer.underAttack">
-            <button ng-click="defend()">Simuliere abhauen</button>
-            <img src="assets/warning.png">
-            <h2>You are under attack!</h2>
-            <p>Run if you dont want to lose the key.</p>
-=======
-          <div class="list card" ng-show="underAttack">
-            <div class="item item-divider">
+          <div class="list card" ng-show="selectedPlayer.underAttack">
+            <div class="item item-divider text-center">
               You are under attack!
             </div>
             <div class="item item-text-wrap">
@@ -111,17 +118,39 @@
               <p class="text-center">Run if you dont want to lose the key.</p>
               <button class="button button-block button-calm" ng-click="defend()">Simuliere abhauen</button>
             </div>
->>>>>>> 83a82df5f601bfaa4b6195daa30a752ad58b4f39
           </div>
         </ion-content>
+
         <!-- Attacked / view cool down (active/inactive) -->
-        <ion-footer-bar align-title="left" class="bar-assertive" ng-show="attackTimeOut">
-            <div class="title ion-clock"> You can not attack for {{attackTimeOut.seconds}} seconds</div>
+        <ion-footer-bar align-title="left" class="bar-assertive" ng-show="selectedPlayer.attackTimeOut">
+            <div class="title ion-clock"> You can not attack for {{attackTimeout.value}} seconds</div>
         </ion-footer-bar>
       </ion-view>
     </script>
 
     <!-- End View -->
+    <script id="end.html" type="text/ng-template">
+      <ion-view title="Game ended">
+        <ion-content has-bouncing="false">
+          <div class="list card" ng-show="hasAllKeys()">
+            <div class="item item-divider text-center">
+              Congratulations, you won!
+            </div>
+            <div class="item item-text-wrap">
+              <img class="full-image" src="assets/master.png">
+            </div>
+          </div>
+          <div class="list card" ng-show="!hasAllKeys()">
+            <div class="item item-divider text-center">
+              Sorry, you lost!
+            </div>
+            <div class="item item-text-wrap">
+              <img class="full-image" src="assets/sad.png">
+            </div>
+          </div>
+        </ion-content>
+      </ion-view>
+    </script>
 
 <!-- 
 
