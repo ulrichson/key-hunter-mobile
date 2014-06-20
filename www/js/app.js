@@ -311,9 +311,9 @@ angular.module('app', ['ionic'])
         if($scope.selectedPlayer.attackTimeOut){
             $scope.download.stop();
              // TODO hier muss der cooldown angezeigt werden   
-            $scope.attackTimeOut.value = 5;         
+            $scope.attackTimeout.value = 5;         
             $interval(function() {
-                $scope.attackTimeOut.value <= 0 ?  $scope.selectedPlayer.attackTimeOut = false : $scope.attackTimeOut.value--;
+                $scope.attackTimeout.value <= 0 ?  $scope.selectedPlayer.attackTimeOut = false : $scope.attackTimeout.value--;
             }, 1000, 1)
         }
     });
