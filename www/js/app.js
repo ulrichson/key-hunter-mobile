@@ -136,6 +136,11 @@ angular.module('app', ['ionic'])
 })
 
 .controller('AppController', ['$scope', '$state', '$q', '$interval', 'listener', 'pouchWrapper', function($scope, $state, $q, $interval, listener, pouchWrapper) {
+    
+    // Game parameter
+    $scope.showPlayerWithin = 20; // in meter
+    $scope.downloadTime = 10000 // in ms
+    
     // gamestatus
     pouchWrapper.get('gamestatus').then(function(res){
         $scope.gamestatus=res;
@@ -157,7 +162,6 @@ angular.module('app', ['ionic'])
     $scope.beaconsInRange;
     $scope.isBeacon = false;
 
-    $scope.showPlayerWithin = 20;
     $scope.selectedPlayer = {};
     $scope.forceSimulationMode = true;
 	
@@ -206,8 +210,8 @@ angular.module('app', ['ionic'])
         start : function() {
             $scope.download.state = true;
             $scope.download._interval = $interval(function() {
-                $scope.download.value >= 500 ? $scope.download.won() : $scope.download.value++;
-            }, 50)
+                $scope.download.value >= 100 ? $scope.download.won() : $scope.download.value++;
+            }, $scope.downloadTime / 100);
         },
         stop : function () {
             $scope.download.value = 0;
@@ -249,7 +253,12 @@ angular.module('app', ['ionic'])
 
     // UI callbacks
     $scope.forceSimulationModeChange = function() {
-        $scope.forceSimulationMode = !$scope.forceSimulationMode;
+        $scope.forceSimulationMode = !$scope.forceSimulationMode; // no idea, why it needs to be set manually...
+        // if (!$scope.forceSimulationMode && typeof window.EstimoteBeacons !== "undefined") {
+        //     window.EstimoteBeacons.stopRangingBeaconsInRegion({
+        //         console.log("Stopped to range for beacons in region");
+        //     });
+        // }
         $scope.$apply();
     };
 
@@ -333,7 +342,7 @@ angular.module('app', ['ionic'])
             $scope.attackTimeout.value = 5;         
             $interval(function() {
                 $scope.attackTimeout.value <= 0 ?  $scope.selectedPlayer.attackTimeOut = false : $scope.attackTimeout.value--;
-            }, 1000, 1)
+            }, 1000, 6);
         }
     });
 
