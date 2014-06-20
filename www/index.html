@@ -37,6 +37,15 @@
       <ion-view title="Choose player">
         <ion-content has-bouncing="false">
           <div class="list">
+            <div class="item item-toggle">
+              Force Simulation Mode
+              <label class="toggle toggle-calm">
+                <input type="checkbox" ng-model="forceSimulationMode" ng-change="forceSimulationModeChange()">
+                  <div class="track">
+                  <div class="handle"></div>
+                </div>
+              </label>
+            </div>
             <label class="item item-radio" ng-repeat="player in players track by player._id" ng-click="choosePlayer(player)">
               <input type="radio" name="players" ng-checked="player.name == selectedPlayer.name">
               <div class="item item-avatar">
@@ -96,7 +105,7 @@
             </a>
           </ion-list>
           <div class="list card" ng-show="selectedPlayer.underAttack">
-            <div class="item item-divider">
+            <div class="item item-divider text-center">
               You are under attack!
             </div>
             <div class="item item-text-wrap">

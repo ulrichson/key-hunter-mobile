@@ -159,6 +159,7 @@ angular.module('app', ['ionic'])
 
     $scope.showPlayerWithin = 20;
     $scope.selectedPlayer = {};
+    $scope.forceSimulationMode = true;
 	
 	$scope.attackTimeout ={
 		_interval : 0,
@@ -247,10 +248,16 @@ angular.module('app', ['ionic'])
     };
 
     // UI callbacks
+    $scope.forceSimulationModeChange = function() {
+        $scope.forceSimulationMode = !$scope.forceSimulationMode;
+        $scope.$apply();
+    };
+
     $scope.choosePlayer = function(player) {
         $scope.isBeacon = false;
         $scope.selectedPlayer = player;
-        if(typeof window.EstimoteBeacons === "undefined") {
+        console.log("forceSimulationMode: " + $scope.forceSimulationMode);
+        if($scope.forceSimulationMode || typeof window.EstimoteBeacons === "undefined") {
             console.log("Starting Simulation mode");
             
             //simulation
@@ -280,6 +287,18 @@ angular.module('app', ['ionic'])
                 console.log("Virtual Beacon started");
                 $scope.isBeacon = true;
                 $scope.$apply();
+            });
+
+            console.log("Starting to range for beacons in region");
+            window.EstimoteBeacons.startRangingBeaconsInRegion(function () {
+                console.log("Ranging for beacons in region");
+                setInterval(function () {
+                    window.EstimoteBeacons.getBeacons(function (data) {
+                        $scope.beaconsInRange = data;
+                        $scope.$apply();
+                        // console.log(data);
+                    });
+                }, gameLoopIntervalTime);
             });
         }
     };
@@ -319,25 +338,14 @@ angular.module('app', ['ionic'])
     });
 
     $scope.filterPlayersOutOfRange = function(player) {
-    return player.distance < $scope.showPlayerWithin;
+        return player.distance < $scope.showPlayerWithin;
     };
 
     // Init
     document.addEventListener('deviceready', function() {
-        if(typeof window.EstimoteBeacons !== "undefined") {
-            console.log("Ranging for beacons in region");
-            window.EstimoteBeacons.startRangingBeaconsInRegion(function () {
-                setInterval(function () {
-                    window.EstimoteBeacons.getBeacons(function (data) {
-                        $scope.beaconsInRange = data;
-                        $scope.$apply();
-                        // console.log(data);
-                    });
-                }, gameLoopIntervalTime);
-            });
-        }
+        $scope.forceSimulationMode = typeof window.EstimoteBeacons === "undefined";
+        $scope.$apply();
     }, false);
-
 
     $scope.resetPlayer = function (id) {
         $scope.players = $scope.players || [];
