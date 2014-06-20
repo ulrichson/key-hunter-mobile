@@ -49,7 +49,7 @@
             <label class="item item-radio" ng-repeat="player in players track by player._id" ng-click="choosePlayer(player)">
               <input type="radio" name="players" ng-checked="player.name == selectedPlayer.name">
               <div class="item item-avatar">
-                 <img src="{{player.img}}"> 
+                 <img ng-src="{{player.img}}"> 
                  <h2>{{ player.name }} </h2>
               </div>
               <i class="radio-icon ion-checkmark"></i>
@@ -68,7 +68,7 @@
       <ion-view title="Key Hunter - {{ selectedPlayer.name }}">
 
         <!-- Game running -->
-        <ion-content ng-show="!gameEnded">
+        <ion-content>
           <div class="row">
             <div class="col col-33 text-center" ng-repeat="key in selectedPlayer.keys">
               <button class="button button-large icon ion-key" ng-class="key.state" ></button>
@@ -121,8 +121,17 @@
           </div>
         </ion-content>
         
-        <!-- Game ended -->
-        <ion-content ng-show="gameEnded">
+        <!-- Attacked / view cool down (active/inactive) -->
+        <ion-footer-bar align-title="left" class="bar-assertive" ng-show="selectedPlayer.attackTimeOut">
+            <div class="title ion-clock"> You can not attack for {{attackTimeout.value}} seconds</div>
+        </ion-footer-bar>
+      </ion-view>
+    </script>
+
+    <!-- End View -->
+    <script id="end.html" type="text/ng-template">
+      <ion-view title="Game ended">
+        <ion-content has-bouncing="false">
           <div class="list card" ng-show="hasAllKeys()">
             <div class="item item-divider text-center">
               Congratulations, you won!
@@ -131,7 +140,6 @@
               <img class="full-image" src="assets/master.png">
             </div>
           </div>
-
           <div class="list card" ng-show="!hasAllKeys()">
             <div class="item item-divider text-center">
               Sorry, you lost!
@@ -141,15 +149,8 @@
             </div>
           </div>
         </ion-content>
-
-        <!-- Attacked / view cool down (active/inactive) -->
-        <ion-footer-bar align-title="left" class="bar-assertive" ng-show="selectedPlayer.attackTimeOut">
-            <div class="title ion-clock"> You can not attack for {{attackTimeout.value}} seconds</div>
-        </ion-footer-bar>
       </ion-view>
     </script>
-
-    <!-- End View -->
 
 <!-- 
 
