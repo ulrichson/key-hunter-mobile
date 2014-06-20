@@ -74,21 +74,24 @@
           </div>
 
           <!-- Key download progress -->
+          <div id="progressBar" ng-show="download.state" >
+              <progress max="100" value="{{ download.value }}"></progress>
+          </div>
           <!-- Find last key -->
-
-          <!-- UL: does ion-card exist? -->
-          <ion-card>
-            <div id="progressBar" ng-show="download.state" >
-                <progress max="100" value="{{ download.value }}"></progress>
-            </div>
-            <!-- UL: item needs to be wrapped in ion-list -->
+          <ion-list ng-show="hasAllKeys()">
             <div class="item item-divider">
               Masterkey
             </div>
             <div class="item item-text-wrap">
-              You collected all keys, go find the last key!
+              You collected all keys, go find the last key within a distance of {{ masteKeyDistanceWinDistance }}m!
             </div>
-          </ion-card>
+            <div class="item item-avatar item-button-right" ng-repeat="beacon in beaconsInRange | filter: filterMasterBeacons | orderBy: 'distance'">
+                <img ng-src="{{ beaconToMasterImage[beacon.major+''+beacon.minor] }}"> 
+                <h2>{{ beaconToMasterName[beacon.major+""+beacon.minor] }}</h2>
+                <small>{{ formatDistance(beacon.distance) }}</small>
+            </div>
+          </div>
+          </ion-list>
           <ion-list ng-show="!selectedPlayer.underAttack">
             <div class="item item-divider">
               Players nearby

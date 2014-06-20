@@ -139,8 +139,11 @@ angular.module('app', ['ionic'])
     
     // Game parameter
     $scope.showPlayerWithin = 20; // in meter
+    $scope.showMasterWithin = 0.5; // in meter
+    $scope.masteKeyDistanceWinDistance = 0.5 // in meter
     $scope.downloadTime = 10000; // in ms
     $scope.penaltyTime = 5; // in s
+    $scope.gameEnded = false;
     var gameLoopIntervalTime = 500;
 
     
@@ -157,7 +160,7 @@ angular.module('app', ['ionic'])
 
     var KeystateEnum = {
         MISSING : "button-light",
-        WON : "button-positive"
+        WON : "button-calm"
     };
 
 
@@ -173,7 +176,6 @@ angular.module('app', ['ionic'])
 		
 	}
 
-    // "5264247840": "Master"
     $scope.beaconToPlayerName = {
         "1111111111": "Player 1",
         "1111122222": "Player 2",
@@ -182,14 +184,22 @@ angular.module('app', ['ionic'])
     $scope.beaconToPlayerId = {
         "1111111111": "player1",
         "1111122222": "player2",
-        "1111133333": "player3",
-        "5264247840": "Master"
+        "1111133333": "player3"
+        // "5264247840": "Master"
     };
     $scope.beaconToPlayerImage = {
         "1111111111": "assets/player1.jpg",
         "1111122222": "assets/player2.jpg",
         "1111133333": "assets/player3.jpg"
     };
+
+    $scope.beaconToMasterName = {
+        "5264247840": "Master"
+    };
+    $scope.beaconToMasterImage = {
+        "5264247840": "assets/master.png"
+    };
+
     
     var guid = (function() {
         function s4() {
@@ -316,11 +326,23 @@ angular.module('app', ['ionic'])
         }
     };
 
+    $scope.hasAllKeys = function() {
+        for(var i = 0 ; i < $scope.selectedPlayer.keys.length; i++) {
+            if ($scope.selectedPlayer.keys[i].state != KeystateEnum.WON) {
+                return false;
+            }
+        }
+        return true;
+    };
+
     $scope.filterPlayerBeacons = function(beacon) {
         return typeof $scope.beaconToPlayerName[beacon.major+""+beacon.minor] !== "undefined" && beacon.distance < $scope.showPlayerWithin;
     };
 
-    // UI callbacks
+    $scope.filterMasterBeacons = function(beacon) {
+        return typeof $scope.beaconToMasterName[beacon.major+""+beacon.minor] !== "undefined" && beacon.distance < $scope.showMasterWithin;
+    };
+
     $scope.attack = function(beacon){
         var victim = $scope.beaconToPlayerId[beacon.major+""+beacon.minor];
         $scope.players[$scope.getPlayerArrayId(victim)].underAttack = $scope.selectedPlayer._id;
@@ -348,10 +370,6 @@ angular.module('app', ['ionic'])
             }, 1000, $scope.penaltyTime + 1);
         }
     });
-
-    $scope.filterPlayersOutOfRange = function(player) {
-        return player.distance < $scope.showPlayerWithin;
-    };
 
     // Init
     document.addEventListener('deviceready', function() {
