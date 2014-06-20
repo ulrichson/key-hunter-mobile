@@ -146,7 +146,6 @@ angular.module('app', ['ionic'])
     $scope.gameEnded = false;
     var gameLoopIntervalTime = 500;
 
-    
     // gamestatus
     pouchWrapper.get('gamestatus').then(function(res){
         $scope.gamestatus=res;

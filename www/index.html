@@ -66,7 +66,9 @@
     <!-- Play View -->
     <script id="play.html" type="text/ng-template">
       <ion-view title="Key Hunter - {{ selectedPlayer.name }}">
-        <ion-content>
+
+        <!-- Game running -->
+        <ion-content ng-show="!gameEnded">
           <div class="row">
             <div class="col col-33 text-center" ng-repeat="key in selectedPlayer.keys">
               <button class="button button-large icon ion-key" ng-class="key.state" ></button>
@@ -118,6 +120,28 @@
             </div>
           </div>
         </ion-content>
+        
+        <!-- Game ended -->
+        <ion-content ng-show="gameEnded">
+          <div class="list card" ng-show="hasAllKeys()">
+            <div class="item item-divider text-center">
+              Congratulations, you won!
+            </div>
+            <div class="item item-text-wrap">
+              <img class="full-image" src="assets/master.png">
+            </div>
+          </div>
+
+          <div class="list card" ng-show="!hasAllKeys()">
+            <div class="item item-divider text-center">
+              Sorry, you lost!
+            </div>
+            <div class="item item-text-wrap">
+              <img class="full-image" src="assets/sad.png">
+            </div>
+          </div>
+        </ion-content>
+
         <!-- Attacked / view cool down (active/inactive) -->
         <ion-footer-bar align-title="left" class="bar-assertive" ng-show="selectedPlayer.attackTimeOut">
             <div class="title ion-clock"> You can not attack for {{attackTimeout.value}} seconds</div>
