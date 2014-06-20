@@ -139,7 +139,10 @@ angular.module('app', ['ionic'])
     
     // Game parameter
     $scope.showPlayerWithin = 20; // in meter
-    $scope.downloadTime = 10000 // in ms
+    $scope.downloadTime = 10000; // in ms
+    $scope.penaltyTime = 5; // in s
+    var gameLoopIntervalTime = 500;
+
     
     // gamestatus
     pouchWrapper.get('gamestatus').then(function(res){
@@ -157,7 +160,6 @@ angular.module('app', ['ionic'])
         WON : "button-positive"
     };
 
-    var gameLoopIntervalTime = 500;
 
     $scope.beaconsInRange;
     $scope.isBeacon = false;
@@ -170,8 +172,7 @@ angular.module('app', ['ionic'])
 		value : 0
 		
 	}
-	
-	$scope.penaltyTime = 5;
+
     // "5264247840": "Master"
     $scope.beaconToPlayerName = {
         "1111111111": "Player 1",
