@@ -182,6 +182,17 @@ angular.module('app', ['ionic'])
         "1111122222": "assets/player2.jpg",
         "1111133333": "assets/player3.jpg"
     };
+    
+    var guid = (function() {
+        function s4() {
+            return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+        }
+        return function() {
+            return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+        };
+    })();
 
     function Key() {
       this.state = KeystateEnum.MISSING
@@ -265,7 +276,7 @@ angular.module('app', ['ionic'])
             }
         }else{
             console.log("Starting Virtual Beacon mode");
-            window.EstimoteBeacons.startVirtualBeacon(player.major, player.minor, player.id, function () {
+            window.EstimoteBeacons.startVirtualBeacon(player.major, player.minor, player.beacon_id, function () {
                 console.log("Virtual Beacon started");
                 $scope.isBeacon = true;
                 $scope.$apply();
@@ -307,41 +318,6 @@ angular.module('app', ['ionic'])
         }
     });
 
-    $scope.choosePlayer = function(player) {
-        $scope.isBeacon = false;
-        $scope.selectedPlayer = player;
-        if(typeof window.EstimoteBeacons === "undefined") {
-            //simulation
-            $scope.isBeacon = true;
-            if($scope.selectedPlayer._id == "player1") {
-                $scope.beaconsInRange = [{
-                    major: 11111,
-                    minor: 22222,
-                    distance: 15
-                }];
-            }else if($scope.selectedPlayer._id == "player2") {
-                $scope.beaconsInRange = [{
-                    major: 11111,
-                    minor: 11111,
-                    distance: 15
-                }];
-            }else if($scope.selectedPlayer._id == "player3") {
-                $scope.beaconsInRange = [{
-                    major: 11111,
-                    minor: 11111,
-                    distance: 15
-                }];
-            }
-        }else{
-            window.EstimoteBeacons.startVirtualBeacon(player.major, player.minor, player.id, function () {
-                console.log("Virtual Beacon started");
-                gameLoopInterval = setInterval(gameLoop, gameLoopIntervalTime);
-                $scope.isBeacon = true;
-                $scope.$apply();
-            });
-        }
-    };
-
     $scope.filterPlayersOutOfRange = function(player) {
     return player.distance < $scope.showPlayerWithin;
     };
@@ -366,9 +342,10 @@ angular.module('app', ['ionic'])
     $scope.resetPlayer = function (id) {
         $scope.players = $scope.players || [];
         $scope.players[id].name = "Player "+(id+1);
-        $scope.players[id].major = 1111;
-        $scope.players[id].minor = Array(4).join(id+1);
+        $scope.players[id].major = 11111;
+        $scope.players[id].minor = Array(6).join(id+1);
         $scope.players[id].img = "assets/player"+(id+1)+".jpg";
+        $scope.players[id].beacon_id = guid();
         $scope.players[id].keys = [
             new Key(), new Key(), new Key()
         ];
