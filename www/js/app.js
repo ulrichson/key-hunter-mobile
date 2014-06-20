@@ -170,6 +170,8 @@ angular.module('app', ['ionic'])
 		value : 0
 		
 	}
+	
+	$scope.penaltyTime = 5;
     // "5264247840": "Master"
     $scope.beaconToPlayerName = {
         "1111111111": "Player 1",
@@ -238,6 +240,7 @@ angular.module('app', ['ionic'])
 
             console.warn("you have won!!!");
             $scope.download.stop();
+            $scope.attackTimeout.value = $scope.penaltyTime;   
             $scope.selectedPlayer.attackTimeOut = true;
         },
         _interval : 0
@@ -338,11 +341,10 @@ angular.module('app', ['ionic'])
         }
         if($scope.selectedPlayer.attackTimeOut){
             $scope.download.stop();
-             // TODO hier muss der cooldown angezeigt werden   
-            $scope.attackTimeout.value = 5;         
+             // TODO hier muss der cooldown angezeigt werden         
             $interval(function() {
                 $scope.attackTimeout.value <= 0 ?  $scope.selectedPlayer.attackTimeOut = false : $scope.attackTimeout.value--;
-            }, 1000, 6);
+            }, 1000, $scope.penaltyTime + 1);
         }
     });
 
