@@ -235,6 +235,8 @@ alert("wait for safari webdeveloper console - just hit ok once opened");
             $scope.stealFirstKey($scope.selectedPlayer.myVictim);
             console.info("you have won!!!");
             $scope.download.stop();
+            console.log($scope.selectedPlayer.myVictim);
+            $scope.players[$scope.getPlayerArrayId($scope.selectedPlayer.myVictim)].underAttack = false;
             $scope.attackTimeout.value = $scope.penaltyTime;
             $scope.selectedPlayer.attackTimeOut = true;
         },
@@ -285,17 +287,37 @@ alert("wait for safari webdeveloper console - just hit ok once opened");
                     major: 11111,
                     minor: 22222,
                     distance: 15
+                },
+                {
+                    major: 11111,
+                    minor: 33333,
+                    distance: 15
+                },
+                {
+                    major: 52642,
+                    minor: 47840,
+                    distance: 15
                 }];
             }else if($scope.selectedPlayer.name == "Player 2") {
                 $scope.beaconsInRange = [{
                     major: 11111,
                     minor: 11111,
                     distance: 15
+                },
+                {
+                    major: 11111,
+                    minor: 33333,
+                    distance: 15
                 }];
             }else if($scope.selectedPlayer.name == "Player 3") {
                 $scope.beaconsInRange = [{
                     major: 11111,
                     minor: 11111,
+                    distance: 15
+                },
+                {
+                    major: 11111,
+                    minor: 22222,
                     distance: 15
                 }];
             }
@@ -390,7 +412,7 @@ alert("wait for safari webdeveloper console - just hit ok once opened");
 
 
         if($scope.selectedPlayer.underAttack){
-            //attack is going on, nothing to do right now
+            console.log("I am under attack");
         }
         if($scope.selectedPlayer.attackTimeOut){
             $scope.download.stop();
