@@ -19,9 +19,9 @@ angular.module('app', ['ionic'])
 
 .factory('myPouch', [function() {
 
-    var mydb = new PouchDB('ng-pouch');
-    PouchDB.replicate('ng-pouch', 'http://mdix.iriscouch.com/keyhunter', {continuous: true});
-    PouchDB.replicate('http://mdix.iriscouch.com/keyhunter', 'ng-pouch', {continuous: true});
+    var mydb = new PouchDB('keyhunter2');
+    PouchDB.replicate('keyhunter2', 'http://mdix.iriscouch.com/keyhunter2', {continuous: true});
+    PouchDB.replicate('http://mdix.iriscouch.com/keyhunter2', 'keyhunter2', {continuous: true});
     return mydb;
 
 }])
@@ -34,7 +34,7 @@ angular.module('app', ['ionic'])
                 $rootScope.$apply(function() {
                     if (err) {
                         deferred.reject(err);
-                        console.warn(err);
+                        console.warn("db get error:",err,res);
                     } else {
                         deferred.resolve(res);
                         console.log("db get:",res);
@@ -49,7 +49,7 @@ angular.module('app', ['ionic'])
                 $rootScope.$apply(function() {
                     if (err) {
                         deferred.reject(err);
-                        console.warn(err);
+                        console.warn("db put error:",err);
                     } else {
                         deferred.resolve(res);
                         console.log("db put:",res);
@@ -109,9 +109,7 @@ angular.module('app', ['ionic'])
                     myPouch.get(change.id, function(err, doc) {
                         $rootScope.$apply(function() {
                             if (err) console.log(err);
-                            if(doc._id == "gamestatus") {
-                                $rootScope.$broadcast('updateGamestatus', doc);
-                            }else if(doc._id.indexOf('player') == 0){
+                            if(doc._id.indexOf('player') == 0){
                                 $rootScope.$broadcast('updatePlayer', doc);
                             }
                         })
@@ -136,6 +134,7 @@ angular.module('app', ['ionic'])
 })
 
 .controller('AppController', ['$scope', '$state', '$q', '$interval', 'listener', 'pouchWrapper', function($scope, $state, $q, $interval, listener, pouchWrapper) {
+alert("wait for safari webdeveloper console - just hit ok once opened");
 
     // Game parameter
     $scope.showPlayerWithin = 20; // in meter
@@ -144,17 +143,6 @@ angular.module('app', ['ionic'])
     $scope.downloadTime = 10000; // in ms
     $scope.penaltyTime = 5; // in s
     var gameLoopIntervalTime = 500;
-
-    // gamestatus
-    pouchWrapper.get('gamestatus').then(function(res){
-        $scope.gamestatus=res;
-    });
-    $scope.$on('updateGamestatus', function(event, doc) {
-        $scope.gamestatus = doc;
-    });
-    $scope.storeGamestatus = function() {
-        pouchWrapper.put($scope.gamestatus,$scope.gamestatus._id, $scope.gamestatus._rev);
-    };
 
     var KeystateEnum = {
         MISSING : "button-light",
@@ -172,7 +160,7 @@ angular.module('app', ['ionic'])
 		_interval : 0,
 		value : 0
 
-	}
+	};
 
     $scope.beaconToPlayerName = {
         "1111111111": "Player 1",
@@ -244,15 +232,24 @@ angular.module('app', ['ionic'])
         },
         won : function () {
             //$scope.keys[$scope.download.index].state = KeystateEnum.WON;
-            // TODO hier muss der erste key des victims gestolen werden
-
-
-            console.warn("you have won!!!");
+            $scope.stealFirstKey($scope.selectedPlayer.myVictim);
+            console.info("you have won!!!");
             $scope.download.stop();
             $scope.attackTimeout.value = $scope.penaltyTime;
             $scope.selectedPlayer.attackTimeOut = true;
         },
         _interval : 0
+    };
+
+    $scope.stealFirstKey = function(playerId) {
+       for(var i=0; i<3; i++){
+           if($scope.players[$scope.getPlayerArrayId(playerId)].keys[i].state == KeystateEnum.WON){
+               $scope.players[$scope.getPlayerArrayId(playerId)].keys[i].state = KeystateEnum.MISSING;
+               // TODO: das victim muss noch mitkriegen dass es bestohlen wurde
+               $scope.selectedPlayer.keys[i].state = KeystateEnum.WON;
+               break;
+           }
+       }
     };
 
     $scope.formatDistance = function(meters) {
@@ -273,25 +270,6 @@ angular.module('app', ['ionic'])
         // }
         $scope.$apply();
     };
-    $scope.defend = function(){     // TODO Ulrich: diese methode aufrufen wenn beacon out of range
-        $scope.players[$scope.getPlayerArrayId($scope.selectedPlayer.underAttack)].attackTimeOut = true;
-        $scope.selectedPlayer.underAttack = false;
-    };
-
-    $scope.$on('updatePlayer', function(event, doc) {
-        var id = $scope.getPlayerArrayId(doc._id);
-        $scope.players[id]=doc;
-        if($scope.selectedPlayer._id == $scope.players[id]._id) $scope.selectedPlayer = $scope.players[id];
-
-
-        if($scope.selectedPlayer.underAttack){
-            //attack is going on, nothing to do right now
-        }
-        if($scope.selectedPlayer.attackTimeOut){
-            $scope.download.stop();
-            // TODO hier muss der cooldown angezeigt werden
-        }
-    });
 
     $scope.choosePlayer = function(player) {
         $scope.isBeacon = false;
@@ -396,6 +374,7 @@ angular.module('app', ['ionic'])
 
     $scope.attack = function(beacon){
         var victim = $scope.beaconToPlayerId[beacon.major+""+beacon.minor];
+        $scope.selectedPlayer.myVictim = victim;
         $scope.players[$scope.getPlayerArrayId(victim)].underAttack = $scope.selectedPlayer._id;
         $scope.download.start();
     };
@@ -420,7 +399,7 @@ angular.module('app', ['ionic'])
                 $scope.attackTimeout.value <= 0 ?  $scope.selectedPlayer.attackTimeOut = false : $scope.attackTimeout.value--;
             }, 1000, $scope.penaltyTime + 1);
         }
-        if(scope.selectedPlayer.gameEnded){
+        if($scope.selectedPlayer.gameEnded){
             $state.go("end");
         }
     });
