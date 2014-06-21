@@ -198,6 +198,13 @@ alert("wait for safari webdeveloper console - just hit ok once opened");
         };
     })();
 
+    $scope.attack = function(beacon){
+        var victim = $scope.beaconToPlayerId[beacon.major+""+beacon.minor];
+        $scope.selectedPlayer.myVictim = victim;
+        $scope.players[$scope.getPlayerArrayId(victim)].underAttack = $scope.selectedPlayer._id;
+        $scope.download.start();
+    };
+
     function Key() {
       this.state = KeystateEnum.MISSING
     }
@@ -394,12 +401,6 @@ alert("wait for safari webdeveloper console - just hit ok once opened");
         return typeof $scope.beaconToMasterName[beacon.major+""+beacon.minor] !== "undefined" && beacon.distance < $scope.showMasterWithin;
     };
 
-    $scope.attack = function(beacon){
-        var victim = $scope.beaconToPlayerId[beacon.major+""+beacon.minor];
-        $scope.selectedPlayer.myVictim = victim;
-        $scope.players[$scope.getPlayerArrayId(victim)].underAttack = $scope.selectedPlayer._id;
-        $scope.download.start();
-    };
     $scope.defend = function(){     // TODO Ulrich: diese methode aufrufen wenn beacon out of range
         $scope.players[$scope.getPlayerArrayId($scope.selectedPlayer.underAttack)].attackTimeOut = true;
         $scope.selectedPlayer.underAttack = false;

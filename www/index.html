@@ -98,15 +98,13 @@
             <div class="item item-divider">
               Players nearby
             </div>
-            <a class="item item-avatar item-button-right" ng-repeat="beacon in beaconsInRange | filter: filterPlayerBeacons | orderBy: 'distance'" ng-click="attack(beacon)">
+            <a class="item item-avatar item-button-right" ng-repeat="beacon in beaconsInRange | filter: filterPlayerBeacons | orderBy: 'distance'">
                 <img ng-src="{{ beaconToPlayerImage[beacon.major+''+beacon.minor] }}"> 
                 <h2>{{ beaconToPlayerName[beacon.major+""+beacon.minor] }}</h2>
                 <small>{{ formatDistance(beacon.distance) }}</small>
-                <!--
-                <button class="button button-large button-royal" ng-click="attack(beacon)" ng-disabled="selectedPlayer.attackTimeOut">
+                <button class="button button-large button-royal" ng-click="attack(beacon)" ng-disabled="selectedPlayer.attackTimeOut || download.state">
                   <i class="icon ion-flash"></i>
                 </button>
-                -->
             </a>
           </ion-list>
           <div class="list card" ng-show="selectedPlayer.underAttack">
