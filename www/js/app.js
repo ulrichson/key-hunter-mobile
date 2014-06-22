@@ -141,7 +141,7 @@ angular.module('app', ['ionic'])
     $scope.showMasterWithin = 0.5; // in meter
     $scope.masteKeyWinDistance = 0.5 // in meter
     $scope.downloadTime = 10000; // in ms
-    $scope.penaltyTime = 5; // in s
+    $scope.penaltyTime = 15; // in s
     var gameLoopIntervalTime = 500;
 
     var KeystateEnum = {
@@ -214,7 +214,9 @@ angular.module('app', ['ionic'])
         state : false,
         value : 0,
         start : function() {
+        	$scope.attackTimeout.value = $scope.penaltyTime;
             $scope.download.state = true;
+            $scope.selectedPlayer.attackfailed = false;
             $scope.download._interval = $interval(function() {
                 $scope.download.value >= 100 ? $scope.download.won() : $scope.download.value++;
             }, $scope.downloadTime / 100);
@@ -243,7 +245,6 @@ angular.module('app', ['ionic'])
             console.info("you have won a key from ",$scope.selectedPlayer.myVictim);
             $scope.download.stop();
             $scope.players[$scope.getPlayerArrayId($scope.selectedPlayer.myVictim)].underAttack = false;
-            $scope.attackTimeout.value = $scope.penaltyTime;
             $scope.selectedPlayer.attackTimeOut = true;
             $scope.checkGameEnd();
         },
@@ -409,6 +410,7 @@ angular.module('app', ['ionic'])
     };
 
     $scope.defend = function(){     // TODO Ulrich: diese methode aufrufen wenn beacon out of range
+        $scope.players[$scope.getPlayerArrayId($scope.selectedPlayer.underAttack)].attackfailed = true;
         $scope.players[$scope.getPlayerArrayId($scope.selectedPlayer.underAttack)].attackTimeOut = true;
         $scope.selectedPlayer.underAttack = false;
     };
