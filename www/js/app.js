@@ -240,12 +240,12 @@ alert("wait for safari webdeveloper console - just hit ok once opened");
         won : function () {
             //$scope.keys[$scope.download.index].state = KeystateEnum.WON;
             $scope.stealFirstKey($scope.selectedPlayer.myVictim);
-            console.info("you have won!!!");
+            console.info("you have won a key from ",$scope.selectedPlayer.myVictim);
             $scope.download.stop();
-            console.log($scope.selectedPlayer.myVictim);
             $scope.players[$scope.getPlayerArrayId($scope.selectedPlayer.myVictim)].underAttack = false;
             $scope.attackTimeout.value = $scope.penaltyTime;
             $scope.selectedPlayer.attackTimeOut = true;
+            $scope.checkGameEnd();
         },
         _interval : 0
     };
@@ -358,29 +358,36 @@ alert("wait for safari webdeveloper console - just hit ok once opened");
                             }
                         }
 
-                        // [UNTESTED] Check if master key is in range
-                        if (scope.hasAllKeys()) {
-                            var isMasterKeyInRange = false;
-                            for (var i = 0; i < data.length; i++) {
-                                if ($scope.beaconToPlayerId[data.major+""+data.minor] == "master" && data.distance < $scope.masteKeyWinDistance) {
-                                    isMasterKeyInRange = true;
-                                    break;
-                               }
-                            }
-
-                            if (isMasterKeyInRange) {
-                                // [TODO] end game for other players
-                                for (var i=0; i < $scope.players.length; i++) {
-                                    $scope.players[i].gameEnded = true;
-                                }
-                            }
-                        }
+                        $scope.checkGameEnd(data);
 
                         $scope.$apply();
                         // console.log(data);
                     });
                 }, gameLoopIntervalTime);
             });
+        }
+    };
+
+    $scope.checkGameEnd = function(data){
+        if ($scope.hasAllKeys()) {
+            if($scope.forceSimulationMode == false) {
+                $scope.isMasterKeyInRange = false;
+                for (var i = 0; i < data.length; i++) {
+                    if ($scope.beaconToPlayerId[data.major + "" + data.minor] == "master" && data.distance < $scope.masteKeyWinDistance) {
+                        $scope.isMasterKeyInRange = true;
+                        break;
+                    }
+                }
+            }else{
+                $scope.isMasterKeyInRange = true;
+            }
+
+            console.log("isMasterKeyInRange",$scope.isMasterKeyInRange);
+            if ($scope.isMasterKeyInRange) {
+                for (var i=0; i < $scope.players.length; i++) {
+                    $scope.players[i].gameEnded = true;
+                }
+            }
         }
     };
 
