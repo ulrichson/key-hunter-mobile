@@ -21,8 +21,8 @@ angular.module('app', ['ionic'])
 
     var dbName = "keyhunter3";
     var mydb = new PouchDB(dbName);
-    PouchDB.replicate(dbName, 'http://mdix.iriscouch.com/'+dbName, {continuous: true});
-    PouchDB.replicate('http://mdix.iriscouch.com/'+dbName, dbName, {continuous: true});
+    PouchDB.replicate(dbName, 'http://ulrichson.iriscouch.com/'+dbName, {continuous: true});
+    PouchDB.replicate('http://ulrichson.iriscouch.com/'+dbName, dbName, {continuous: true});
     return mydb;
 
 }])
@@ -463,6 +463,17 @@ angular.module('app', ['ionic'])
         }
     };
 
+    $scope.resetPlayers = function() {
+        //reset players
+        $scope.resetPlayer(0);
+        $scope.resetPlayer(1);
+        $scope.resetPlayer(2);
+
+        // set some presets
+        $scope.players[0].keys[0].state = KeystateEnum.WON;
+        $scope.players[1].keys[1].state = KeystateEnum.WON;
+        $scope.players[2].keys[2].state = KeystateEnum.WON;
+    };
 
     // get players from db and bind any changes to $scope.players
     $scope.players = $scope.players || [];
@@ -485,18 +496,5 @@ angular.module('app', ['ionic'])
                 },true);
             })(i);
         }
-
-        //reset players
-
-        $scope.resetPlayer(0);
-        $scope.resetPlayer(1);
-        $scope.resetPlayer(2);
-        // */
-
-        // set some presets
-        $scope.players[0].keys[0].state = KeystateEnum.WON;
-        $scope.players[1].keys[1].state = KeystateEnum.WON;
-        $scope.players[2].keys[2].state = KeystateEnum.WON;
-
     });
 }]);

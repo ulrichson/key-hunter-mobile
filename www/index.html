@@ -56,6 +56,7 @@
             </label>
           </div>
           <a class="button button-full button-calm" href="#/play" ng-disabled="!isBeacon">Join Game</a>
+          <button class="button button-full button-light" ng-click="resetPlayers()">Reset Game State</button>
           <p class="text-center" style="color: silver" ng-show="selectedPlayer.name">
             <small>{{ selectedPlayer.beacon_id }}<br>{{ selectedPlayer.major }} / {{selectedPlayer.minor }}</small>
           </p>
@@ -121,7 +122,7 @@
           <div class="list card" ng-show="selectedPlayer.attackfailed && selectedPlayer.attackTimeOut">
             <div class="item item-text-wrap">
               <img class="full-image" src="assets/warning.png">
-              <p class="text-center">Attack failed!.</p>
+              <p class="text-center">Attack failed!</p>
             </div>
           </div>
           
