@@ -117,11 +117,21 @@
               <button class="button button-block button-calm" ng-click="defend()">Simuliere abhauen</button>
             </div>
           </div>
+          
+          <div class="list card" ng-show="selectedPlayer.attackfailed && selectedPlayer.attackTimeOut">
+            <div class="item item-text-wrap">
+              <img class="full-image" src="assets/warning.png">
+              <p class="text-center">Attack failed!.</p>
+            </div>
+          </div>
+          
         </ion-content>
 
         <!-- Attacked / view cool down (active/inactive) -->
         <ion-footer-bar align-title="left" class="bar-assertive" ng-show="selectedPlayer.attackTimeOut">
-            <div class="title ion-clock"> You can not attack for {{attackTimeout.value}} seconds</div>
+           <div class="title"> 
+	            <div class="ion-clock">You can not attack for {{attackTimeout.value}} seconds</div>
+           </div>
         </ion-footer-bar>
       </ion-view>
     </script>
