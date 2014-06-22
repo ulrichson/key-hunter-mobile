@@ -138,11 +138,11 @@ angular.module('app', ['ionic'])
     //alert("wait for safari webdeveloper console - just hit ok once opened");
 
     // Game parameter
-    $scope.showPlayerWithin = 20; // in meter
-    $scope.attackerEscapeDistance = 0.2; // in meter
-    $scope.showMasterWithin = 0.5; // in meter
+    $scope.showPlayerWithin = 15; // in meter
+    $scope.attackerEscapeDistance = 5; // in meter
+    $scope.showMasterWithin = 10; // in meter
     $scope.masterKeyWinDistance = 0.5; // in meter
-    $scope.downloadTime = 20000; // in ms
+    $scope.downloadTime = 15000; // in ms
     $scope.penaltyTime = 15; // in s
     var gameLoopIntervalTime = 500;
 
@@ -349,7 +349,7 @@ angular.module('app', ['ionic'])
                         if ($scope.selectedPlayer.underAttack) {
                             var isAttackerInRange = false;
                             for (var i = 0; i < data.length; i++) {
-                                beacon = data[i];
+                                var beacon = data[i];
                                 // console.log($scope.beaconToPlayerId[beacon.major+""+beacon.minor] + "  " + $scope.selectedPlayer.underAttack);
                                 if ($scope.beaconToPlayerId[beacon.major+""+beacon.minor] == $scope.selectedPlayer.underAttack && beacon.distance < $scope.attackerEscapeDistance) {
                                     isAttackerInRange = true;
@@ -378,7 +378,8 @@ angular.module('app', ['ionic'])
             if($scope.forceSimulationMode == false) {
                 $scope.isMasterKeyInRange = false;
                 for (var i = 0; i < data.length; i++) {
-                    if ($scope.beaconToPlayerId[data.major + "" + data.minor] == "master" && data.distance < $scope.masterKeyWinDistance) {
+                    var beacon = data[i];
+                    if ($scope.beaconToPlayerId[beacon.major + "" + beacon.minor] == "master" && beacon.distance < $scope.masterKeyWinDistance) {
                         $scope.isMasterKeyInRange = true;
                         break;
                     }
@@ -492,7 +493,7 @@ angular.module('app', ['ionic'])
         // players[0].major, players[0].minor, players[0].img,
         for(var i=0;i<3;i++){
             (function(i){
-                $scope.$watch("[players["+i+"].name, players["+i+"].keys, players["+i+"].underAttack, players["+i+"].attackTimeOut]", function(newValue, oldValue) {
+                $scope.$watch("[players["+i+"].name, players["+i+"].keys, players["+i+"].underAttack, players["+i+"].attackTimeOut, players["+i+"].gameEnded]", function(newValue, oldValue) {
                     pouchWrapper.put($scope.players[i],$scope.players[i]._id,$scope.players[i]._rev).then(function(res){
                         $scope.players[i]._rev = res.rev;
                     });

@@ -86,7 +86,7 @@
               Masterkey
             </div>
             <div class="item item-text-wrap">
-              You collected all keys, go find the last key within a distance of {{ masteKeyDistanceWinDistance }}m!
+              You collected all keys, go find the last key within a distance of {{ masterKeyWinDistance }}m!
             </div>
             <div class="item item-avatar item-button-right" ng-repeat="beacon in beaconsInRange | filter: filterMasterBeacons | orderBy: 'distance'">
                 <img ng-src="{{ beaconToMasterImage[beacon.major+''+beacon.minor] }}">
