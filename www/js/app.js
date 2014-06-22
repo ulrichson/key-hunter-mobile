@@ -134,7 +134,7 @@ angular.module('app', ['ionic'])
 })
 
 .controller('AppController', ['$scope', '$state', '$q', '$interval', 'listener', 'pouchWrapper', function($scope, $state, $q, $interval, listener, pouchWrapper) {
-alert("wait for safari webdeveloper console - just hit ok once opened");
+    //alert("wait for safari webdeveloper console - just hit ok once opened");
 
     // Game parameter
     $scope.showPlayerWithin = 20; // in meter
