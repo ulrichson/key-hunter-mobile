@@ -19,9 +19,10 @@ angular.module('app', ['ionic'])
 
 .factory('myPouch', [function() {
 
-    var mydb = new PouchDB('keyhunter2');
-    PouchDB.replicate('keyhunter2', 'http://mdix.iriscouch.com/keyhunter2', {continuous: true});
-    PouchDB.replicate('http://mdix.iriscouch.com/keyhunter2', 'keyhunter2', {continuous: true});
+    var dbName = "keyhunter3";
+    var mydb = new PouchDB(dbName);
+    PouchDB.replicate(dbName, 'http://mdix.iriscouch.com/'+dbName, {continuous: true});
+    PouchDB.replicate('http://mdix.iriscouch.com/'+dbName, dbName, {continuous: true});
     return mydb;
 
 }])
@@ -424,7 +425,6 @@ angular.module('app', ['ionic'])
         }
         if($scope.selectedPlayer.attackTimeOut){
             $scope.download.stop();
-             // TODO hier muss der cooldown angezeigt werden
             $interval(function() {
                 $scope.attackTimeout.value <= 0 ?  $scope.selectedPlayer.attackTimeOut = false : $scope.attackTimeout.value--;
             }, 1000, $scope.penaltyTime + 1);
