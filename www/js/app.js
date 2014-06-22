@@ -139,9 +139,10 @@ angular.module('app', ['ionic'])
 
     // Game parameter
     $scope.showPlayerWithin = 20; // in meter
+    $scope.attackerEscapeDistance = 0.2; // in meter
     $scope.showMasterWithin = 0.5; // in meter
-    $scope.masteKeyWinDistance = 0.5 // in meter
-    $scope.downloadTime = 10000; // in ms
+    $scope.masterKeyWinDistance = 0.5; // in meter
+    $scope.downloadTime = 20000; // in ms
     $scope.penaltyTime = 15; // in s
     var gameLoopIntervalTime = 500;
 
@@ -345,17 +346,19 @@ angular.module('app', ['ionic'])
                     window.EstimoteBeacons.getBeacons(function (data) {
                         $scope.beaconsInRange = data;
 
-                        // [UNTESTED] check if attacker is still in range
                         if ($scope.selectedPlayer.underAttack) {
                             var isAttackerInRange = false;
                             for (var i = 0; i < data.length; i++) {
-                                if ($scope.beaconToPlayerId[data.major+""+data.minor] == "$scope.selectedPlayer.underAttack" && data.distance < $scope.showPlayerWithin) {
+                                beacon = data[i];
+                                // console.log($scope.beaconToPlayerId[beacon.major+""+beacon.minor] + "  " + $scope.selectedPlayer.underAttack);
+                                if ($scope.beaconToPlayerId[beacon.major+""+beacon.minor] == $scope.selectedPlayer.underAttack && beacon.distance < $scope.attackerEscapeDistance) {
                                     isAttackerInRange = true;
                                     break;
                                 }
                             }
 
                             if (!isAttackerInRange) {
+                                // alert("escaped");
                                 $scope.defend();
                             }
                         }
@@ -375,7 +378,7 @@ angular.module('app', ['ionic'])
             if($scope.forceSimulationMode == false) {
                 $scope.isMasterKeyInRange = false;
                 for (var i = 0; i < data.length; i++) {
-                    if ($scope.beaconToPlayerId[data.major + "" + data.minor] == "master" && data.distance < $scope.masteKeyWinDistance) {
+                    if ($scope.beaconToPlayerId[data.major + "" + data.minor] == "master" && data.distance < $scope.masterKeyWinDistance) {
                         $scope.isMasterKeyInRange = true;
                         break;
                     }
@@ -410,7 +413,7 @@ angular.module('app', ['ionic'])
         return typeof $scope.beaconToMasterName[beacon.major+""+beacon.minor] !== "undefined" && beacon.distance < $scope.showMasterWithin;
     };
 
-    $scope.defend = function(){     // TODO Ulrich: diese methode aufrufen wenn beacon out of range
+    $scope.defend = function(){ 
         $scope.players[$scope.getPlayerArrayId($scope.selectedPlayer.underAttack)].attackfailed = true;
         $scope.players[$scope.getPlayerArrayId($scope.selectedPlayer.underAttack)].attackTimeOut = true;
         $scope.selectedPlayer.underAttack = false;
@@ -496,5 +499,7 @@ angular.module('app', ['ionic'])
                 },true);
             })(i);
         }
+
+        $scope.resetPlayers();
     });
 }]);

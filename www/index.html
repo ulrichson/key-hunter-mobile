@@ -95,7 +95,7 @@
             </div>
           </div>
           </ion-list>
-          <ion-list ng-show="!selectedPlayer.underAttack">
+          <ion-list ng-show="!(selectedPlayer.underAttack || (selectedPlayer.attackfailed && selectedPlayer.attackTimeOut) )">
             <div class="item item-divider">
               Players nearby
             </div>
@@ -131,7 +131,7 @@
         <!-- Attacked / view cool down (active/inactive) -->
         <ion-footer-bar align-title="left" class="bar-assertive" ng-show="selectedPlayer.attackTimeOut">
            <div class="title"> 
-	            <div class="ion-clock">You can not attack for {{attackTimeout.value}} seconds</div>
+	            <div class="ion-clock"> You can not attack for {{attackTimeout.value}} seconds</div>
            </div>
         </ion-footer-bar>
       </ion-view>
